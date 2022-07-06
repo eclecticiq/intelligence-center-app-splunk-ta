@@ -1,0 +1,106 @@
+<dashboard isDashboard='true'
+           script='lookup_observables.js'
+           stylesheet='setup_page.css'
+           hideTitle='true'
+           version='1.1'>
+
+
+
+<row>
+<panel>
+  <html>
+    <row>
+        <panel>
+            <html>
+<h1>EclecticIQ Lookup Result</h1>
+ <div class="body table-responsive">
+                            <div id="lookup_observables" class="lds-dual-ring hidden overlay"></div>
+                            <table class="table table-striped tableChart chart1Top"  style="width: 100%; color: black;  border: 1px solid #dddddd;
+    height: 30px;" id="chart1">
+                                <thead>
+                                    <tr role="row" style="background-color: #42b598;">
+                                        <th class="sorting_asc" tabindex="0" scope="col"
+                                            rowspan="1" colspan="1" aria-sort="ascending"
+                                             style="width: 700px;">
+                                            Title</th>
+                                        <th class="sorting_asc" tabindex="0" scope="col"
+                                            rowspan="1" colspan="1" aria-sort="ascending"
+                                             style="width: 700px;">
+                                            Description</th>
+                                             <th class="sorting_asc" tabindex="0" scope="col"
+                                            rowspan="1" colspan="1" aria-sort="ascending"
+                                             style="width: 700px;">
+                                            Threat Start</th>
+                                             <th class="sorting_asc" tabindex="0" scope="col"
+                                            rowspan="1" colspan="1" aria-sort="ascending"
+                                             style="width: 700px;">
+                                            Tags</th>
+                                             <th class="sorting_asc" tabindex="0" scope="col"
+                                            rowspan="1" colspan="1" aria-sort="ascending"
+                                             style="width: 700px;">
+                                            Source Name</th>
+                                             <th class="sorting_asc" tabindex="0" scope="col"
+                                            rowspan="1" colspan="1" aria-sort="ascending"
+                                             style="width: 700px;">
+                                            Observables</th>
+                                    </tr>
+                                </thead>
+
+                                    <tbody id="lookup_observables">
+
+                                    <tr>
+                                         <td style="border: 1px solid #dddddd;">Title</td>
+                                         <td style="border: 1px solid #dddddd;">Description</td>
+                                         <td style="border: 1px solid #dddddd;">Threat_start_time</td>
+                                         <td style="border: 1px solid #dddddd;">tags</td>
+                                         <td style="border: 1px solid #dddddd;">source_name</td>
+                                          <td style="border: 1px solid #dddddd;">
+                                          <table class="table table-striped tableChart"  style="width: 100%; color: black;  border: 1px solid #dddddd; height: 10px;" id="chart2">
+                                          <thead>
+                                            <tr role="row" style="background-color: #42b598;">
+                                            <th class="sorting_asc" tabinditemx="0" scope="col"
+                                                rowspan="1" colspan="1" aria-sort="ascending"
+                                                 style="width: 100px;">
+                                                Kind</th>
+                                            <th class="sorting_asc" tabindex="0" scope="col"
+                                                rowspan="1" colspan="1" aria-sort="ascending"
+                                                 style="width: 100px;">
+                                                Value</th>
+                                                 <th class="sorting_asc" tabindex="0" scope="col"
+                                                rowspan="1" colspan="1" aria-sort="ascending"
+                                                 style="width: 100px;">
+                                                Maliciousness</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody id="observables">
+
+                                                <tr><td >
+
+                                                </td>
+                                                <td >
+
+                                                </td>
+
+                                                <td></td>
+                                                </tr>
+                                                </tbody>
+                                                  </table></td>
+                                                  </tr>
+
+                                            </tbody>
+
+                                        </table>
+                        </div>
+                        <div class="sumbitButton">
+                             <button id='create_sighting' type="button" style="text-align: -webkit-center;font-size: 12px;margin-left: 50px;">Create Sighting</button>
+
+        </div>
+            </html>
+        </panel>
+    </row>
+
+            </html>
+        </panel>
+    </row>
+</dashboard>

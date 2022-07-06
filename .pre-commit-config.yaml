@@ -1,0 +1,90 @@
+exclude: >
+  (?x)^(
+      TA-eclecticiq/bin/ta_eclecticiq|
+      tests|
+      TA-eclecticiq/bin/eiq_observables_deletion.py|
+       TA-eclecticiq/bin/eiq_observables.py|
+       TA-eclecticiq/appserver|
+       TA-eclecticiq/bin/TA_eclecticiq_rh_account.py|
+       TA-eclecticiq/bin/TA_eclecticiq_rh_eiq_observables_deletion.py|
+       TA-eclecticiq/bin/TA_eclecticiq_rh_eiq_observables.py|
+       TA-eclecticiq/bin/TA_eclecticiq_rh_settings.py|
+       TA-eclecticiq/bin/lookup_observables_command.py|
+       TA-eclecticiq/bin/lookup_observables.py|
+       TA-eclecticiq/bin/create_sighting.py
+  )
+repos:
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.19.4
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py3-plus
+          - --py36-plus
+        exclude: app/collector/custom_eiq_action.py
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: debug-statements
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+      - id: pretty-format-json
+        args:
+          - --autofix
+        exclude: ^tests/.+/profiles.d/.*
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.0
+    hooks:
+      - id: bandit
+        args: [--exclude, tests]
+  - repo: https://github.com/psf/black
+    rev: 21.6b0
+    hooks:
+      - id: black
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        args:
+          - --add-ignore=D107,
+  - repo: https://github.com/yunojuno/pre-commit-xenon
+    rev: v0.1
+    hooks:
+      - id: xenon
+        args:
+          [
+            "--max-average=B",
+            "--exclude=local*",
+            "--ignore=lib_*,local*,target,tests",
+          ]
+  - repo: https://github.com/pycqa/pylint
+    rev: v2.8.3
+    hooks:
+      - id: pylint
+        exclude: tests/,app/collector/custom_eiq_action.py
+        types: [python]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v0.910'  # Use the sha / tag you want to point at
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
