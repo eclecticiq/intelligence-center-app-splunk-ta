@@ -1,0 +1,41 @@
+#main_container {
+    padding: 2px;
+    margin-left: 1%;
+}
+.span{
+    font-weight: bold;
+}
+#setup_button {
+    border-radius: 8%;
+    margin-top: 15px;
+}
+
+.success {
+    margin-top: 15px;
+    color: green;
+    display: none;
+}
+
+.error {
+    margin-top: 15px;
+    color: darkred;
+    display: none;
+}
+
+#error_details {
+    margin-top: 15px;
+    display: none;
+}
+#msg {
+    color:darkblue;
+}
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+  }
