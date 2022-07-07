@@ -9,7 +9,6 @@ exclude: >
        TA-eclecticiq/bin/TA_eclecticiq_rh_eiq_observables_deletion.py|
        TA-eclecticiq/bin/TA_eclecticiq_rh_eiq_observables.py|
        TA-eclecticiq/bin/TA_eclecticiq_rh_settings.py|
-       TA-eclecticiq/bin/lookup_observables_command.py|
        TA-eclecticiq/bin/lookup_observables.py|
        TA-eclecticiq/bin/create_sighting.py
   )
