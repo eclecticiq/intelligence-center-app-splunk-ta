@@ -1,48 +1,29 @@
 # Copyright (c) 2017-2020 IronNet
-# import ta_eclecticiq_declare
+
+import datetime
+from splunk.clilib import cli_common as cli
+
 import os
 import json
 import sys
 import requests
-
 from splunk.persistconn.application import PersistentServerConnectionApplication
-import logging, logging.handlers
+import logging
+import logging.handlers
 import splunk
+import traceback
 
 
-# Add the lib and current directory to the python path
+
 (path, _) = os.path.split(os.path.realpath(__file__))
 sys.path.insert(0, path)
-sys.path.insert(0, os.path.join(path, "../lib"))
-import os
-import sys
-from splunk.clilib import cli_common as cli
-import datetime
+import ta_eclecticiq_declare
+from constants.messages import API_ERROR, COULD_NOT_CREATE_SIGHTING, CREDS_NOT_FOUND, EVENTS_RESPONSE_ERROR_CODE, REQUEST_FAILED, SIGHTING_CREATED
+from utils.formatters import format_proxy_uri
+from constants.sighting_right_click import CONFIDENCE, CONFIDENCE_LEVEL, CONTENT_TYPE, DATA_STR, DESCRIPTION, INGEST_TIME, META, SECURITY_CONTROL, SIGHTING_DESC, SIGHTING_SCHEMA, SIGHTING_TAGS, SIGHTING_TITLE, SIGHTING_TYPE, SIGHTING_VALUE, START_TIME, TAGS, TIME,TIME_FORMAT, TEXT_PLAIN, TIMESTAMP_STR, TITLE, TYPE, VALUE, INPUT_NAME
+from constants.general import AUTHORIZATION, CREDS, HEADERS, PAYLOAD, PROXY, PROXY_PASSWORD, STATUS_STR, URL
+from constants.defaults import LOCAL_DIR, ACCOUNTS_CONF, SETTINGS_CONF
 
-SIGHTING_SCHEMA = {
-    "data": {
-        "data": {
-            "confidence": "medium",
-            "description": "test_desc",
-            "type": "eclecticiq-sighting",
-            "timestamp": "2022-03-10T05:37:42Z",
-            "title": "title1",
-            "security_control": {
-                "type": "information-source",
-                "identity": {
-                    "name": "EclecticIQ Platform App for Qradar",
-                    "type": "identity",
-                },
-                "time": {
-                    "type": "time",
-                    "start_time": "2022-03-10T05:37:42Z",
-                    "start_time_precision": "second",
-                },
-            },
-        },
-        "meta": {"tags": ["Qradar Alert"], "ingest_time": "2022-03-10T05:37:42Z"},
-    }
-}
 
 if sys.platform == "win32":
     import msvcrt
@@ -82,15 +63,7 @@ class Send(PersistentServerConnectionApplication):
             parsed[key] = value
         return parsed
 
-    def create_send_resp(self, response, status_code):
-        logger.info(f"response={status_code}")
-        return {
-            "payload": response,
-            "status": status_code,
-            "headers": {"Content-Type": "application/json"},
-        }
-
-    def send_request(self, url, headers, sighting):
+    def send_request(self, url, headers, proxy, sighting):
         """Send an API request to the URL provided with headers and parameters
 
         :param logger: Splunk logger to send request
@@ -106,99 +79,150 @@ class Send(PersistentServerConnectionApplication):
         :return: API response
         :rtype: dict
         """
-        logger.info("Send request called!")
-
-        response = {}
-
-        endpoint = url + "/entities"
-        logger.info("Sending request!!")
-        response = requests.request(
-            "POST",
-            url=endpoint,
-            headers=headers,
-            data=json.dumps(sighting),
-            verify=False,
-        )
-        logger.info("After send request!")
-        logger.info(response)
-        logger.info(response.status_code)
-        logger.info(endpoint)
-        logger.info(response.content)
+        if proxy.get("proxy_enabled") == "1":
+            proxy_settings = format_proxy_uri(proxy)
+        else:
+            proxy_settings = None
+        try:
+            response = requests.request(
+                "post",
+                url,
+                headers=headers,
+                data=json.dumps(sighting),
+                verify=True,
+                timeout=50,
+                proxies=proxy_settings,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            if str(response.status_code).startswith("5"):
+                logger.critical(API_ERROR.format(input=INPUT_NAME, err=err))
+                logger.critical(
+                    EVENTS_RESPONSE_ERROR_CODE.format(
+                        input=INPUT_NAME,
+                        code=response.status_code,
+                        error=str(response.content),
+                    )
+                )
+            else:
+                logger.error(API_ERROR.format(input=INPUT_NAME, err=err))
+                logger.error(
+                    EVENTS_RESPONSE_ERROR_CODE.format(
+                        input=INPUT_NAME,
+                        code=response.status_code,
+                        error=str(response.content),
+                    )
+                )
+            raise err
+        except requests.exceptions.ConnectionError as err:
+            logger.error(API_ERROR.format(input=INPUT_NAME, err=err))
+            raise err
+        except requests.exceptions.Timeout as err:
+            logger.error(API_ERROR.format(input=INPUT_NAME, err=err))
+            raise err
+        except requests.exceptions.RequestException as err:
+            logger.error(API_ERROR.format(input=INPUT_NAME, err=err))
+            logger.error(
+                EVENTS_RESPONSE_ERROR_CODE.format(
+                    input=INPUT_NAME,
+                    code=response.status_code,
+                    error=str(response.content),
+                )
+            )
+            raise err
+        except Exception as err:
+            logger.error(traceback.format_exc())
+            raise err
         return response
 
-    def handle(self, in_string):
+    def create_response(self, status, message):
+        return {
+            PAYLOAD: message,
+            STATUS_STR: status,
+            HEADERS:{
+                CONTENT_TYPE: TEXT_PLAIN
+            }
+        }
 
-        logger.info("Request received.")
-        in_dict = json.loads(in_string)
-        appdir = os.path.dirname(os.path.dirname(__file__))
-        localconfpath = os.path.join(appdir, "local", "ta_eclecticiq_account.conf")
-        logger.info(localconfpath)
+    def get_url(self, path):
         apikeyconf = {}
-        if os.path.exists(localconfpath):
-            localconf = cli.readConfFile(localconfpath)
-            logger.info(localconf)
+        if os.path.exists(path):
+            localconf = cli.readConfFile(path)
             for name, content in localconf.items():
                 if name != "default":
                     account_name = name
-                    logger.info(account_name)
                 if name in apikeyconf:
                     apikeyconf[name].update(content)
                 else:
                     apikeyconf[name] = content
-            logger.info(f"apikeyconf ={apikeyconf}")
-            url = apikeyconf[account_name]["url"]
-            logger.info(url)
+            return apikeyconf[account_name][URL]
 
+    def get_proxy(self, path):
+        if os.path.exists(path):
+            localsettingsconf = cli.readConfFile(path)
+            for stanza, fields in localsettingsconf.items():
+                if stanza == PROXY:
+                    return fields
+
+    def handle(self, in_string):
+        """Handles request made to the endpoint services/create_sighting
+
+        :param self: Object of the class
+        :type in_string: Send
+        :param in_string: Payload of the request in string
+        :type in_string: str
+        :return: Response to be send
+        :rtype: dict
+        """
+
+        logger.info("Request received.")
+        in_dict = json.loads(in_string)
+        appdir = os.path.dirname(os.path.dirname(__file__))
+        localconfpath = os.path.join(appdir, LOCAL_DIR, ACCOUNTS_CONF)
+        url = self.get_url(localconfpath)
+        localsettings_conf = os.path.join(appdir, LOCAL_DIR, SETTINGS_CONF)
+        settingsconf = {}
+        settingsconf[PROXY] = self.get_proxy(localsettings_conf)
         payload = self.parse_form_data(in_dict["form"])
-        logger.info(payload)
         today = datetime.datetime.utcnow().date()
         sighting = SIGHTING_SCHEMA
-        logger.info(sighting)
         time = datetime.datetime.utcnow()
-        creds = json.loads(payload["creds"])
-        logger.info(creds)
-        api_key = json.loads(creds["eiq"])["api_key"]
-        logger.info("api_key =" + api_key)
-        sighting["data"]["data"]["value"] = payload["sighting_value"]
-        sighting["data"]["data"]["description"] = payload["sighting_desc"]
-        sighting["data"]["data"]["timestamp"] = datetime.datetime.strftime(
-            time, "%Y-%m-%dT%H:%M:%S.%f"
+        api_key = payload.get(CREDS)
+        if not api_key:
+            return self.create_response(401, CREDS_NOT_FOUND)
+        proxy_pass = payload.get("proxy_pass") if payload.get("proxy_pass") else ""
+        if settingsconf[PROXY]:
+            settingsconf[PROXY][PROXY_PASSWORD] = proxy_pass
+        sighting[DATA_STR][DATA_STR][VALUE] = payload[SIGHTING_VALUE]
+        sighting[DATA_STR][DATA_STR][DESCRIPTION] = payload[SIGHTING_DESC]
+        sighting[DATA_STR][DATA_STR][TIMESTAMP_STR] = datetime.datetime.strftime(
+            time, TIME_FORMAT
         )
-        sighting["data"]["data"]["confidence"] = payload["confidence_level"]
-        sighting["data"]["data"]["title"] = payload["sighting_title"]
-        sighting["data"]["meta"]["tags"] = [
-            "".join(i for i in list(payload["sighting_tags"]))
+        sighting[DATA_STR][DATA_STR][CONFIDENCE] = payload[CONFIDENCE_LEVEL]
+        sighting[DATA_STR][DATA_STR][TITLE] = payload[SIGHTING_TITLE]
+        sighting[DATA_STR][META][TAGS] = [
+            "".join(i for i in list(payload[SIGHTING_TAGS]))
         ]
-        sighting["data"]["data"]["security_control"]["type"] = payload["sighting_type"]
-        sighting["data"]["data"]["security_control"]["time"][
-            "start_time"
+        sighting[DATA_STR][DATA_STR][SECURITY_CONTROL][TYPE] = payload[SIGHTING_TYPE]
+        sighting[DATA_STR][DATA_STR][SECURITY_CONTROL][TIME][
+            START_TIME
         ] = datetime.datetime.strftime(
             datetime.datetime(today.year, today.month, today.day, 0, 0, 0),
-            "%Y-%m-%dT%H:%M:%S.%f",
+            TIME_FORMAT,
         )
-        sighting["data"]["meta"]["ingest_time"] = datetime.datetime.strftime(
-            time, "%Y-%m-%dT%H:%M:%S.%f"
+        sighting[DATA_STR][META][INGEST_TIME] = datetime.datetime.strftime(
+            time, TIME_FORMAT
         )
-        logger.info(sighting)
-        headers = {"Authorization": f"Bearer {api_key}"}
-        response = self.send_request(url, headers, sighting)
-        # return response
-        logger.info(response.status_code)
-        logger.info(response.content)
-        # if (!(response.status_code).startsWith("2")) {
-        #     logger.info("Request failed!Please try again!!")
-        #     return
-        # }
-        # else {
-        #     ret_value = {
-        #         "response":response.status_code,
-        #         "msg":"Sighting Created Successfully"
-        #         }
-        #     return ret_value
-        #     try {
-        #             logger.info(response)
-        #             return
-        #     } catch (e) {
-        #             console.log(e)
-        #             alert("Loading failed,Check Network connection!")
-        #             return
+        headers = {AUTHORIZATION: f"Bearer {api_key}"}
+        try:
+            response = self.send_request(url + "/entities", headers, settingsconf[PROXY], sighting)
+        except Exception as err:
+            return self.create_response(500, err)
+        if not (str(response.status_code)).startswith("2"):
+            logger.info(REQUEST_FAILED)
+            return self.create_response(response.status_code, COULD_NOT_CREATE_SIGHTING)
+        else:
+            content = json.loads(response.content)
+            message = SIGHTING_CREATED.format(url, content[DATA_STR]["id"])
+            logger.info(message)
+            return self.create_response(response.status_code, message)

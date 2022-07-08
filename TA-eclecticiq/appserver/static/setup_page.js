@@ -13,9 +13,9 @@ require([
     "jquery", "splunkjs/splunk", "splunkjs/mvc",
 ], function ($, splunkjs, mvc) {
     console.log("setup_page.js require(...) called");
+    $("#setup_button").prop('disabled', false);
     tokens = mvc.Components.get("default");
     var value = tokens.get("q")
-    console.log(value)
     var http = new splunkjs.SplunkWebHttp();
 
     var service = new splunkjs.Service(
@@ -24,24 +24,29 @@ require([
     );
     var storagePasswords = service.storagePasswords();
     var creds = [];
-    let url_key = "";
     var response = storagePasswords.fetch(
         function (err, storagePasswords) {
             if (err) { console.warn(err); }
             else {
                 response = storagePasswords.list();
-                console.log(response)
                 var my_list = [];
                 for (var i = 0; i < response.length; i++) {
                     var uname = ""
                     var api_key = ""
                     if (response[i]["_acl"]["app"] == "TA-eclecticiq") {
-                        uname = "eiq"
+                        if(response[i]["_properties"]["realm"].endsWith("settings") == true){
+                            uname = "proxy_pass"
+                        }
+                        else{
+                            uname = "eiq"
+                        }
                         api_key = response[i]["_properties"]["clear_password"];
+                        if(api_key.includes("splunk_cred_sep")==true){
+                            continue;
+                        }
                         var temp = {};
                         temp[uname] = api_key;
                         my_list.push(temp);
-                        break
                     }
                 }
                 localStorage.setItem("response", JSON.stringify(my_list))
@@ -49,7 +54,6 @@ require([
         });
     var creds = JSON.parse(localStorage.getItem("response"))
     localStorage.removeItem("response")
-    console.log(creds)
 
     $("#sighting_value").val(value)
     console.log("Sighting of : " + String(value))
@@ -74,8 +78,8 @@ require([
     // onclick function for "Complete Setup" button from setup_page_dashboard.xml
  async function completeSetup() {
     console.log("setup_page.js completeSetup called");
-    $("#setup_button").attr('disabled', 'disabled');
-
+    $("#setup_button").prop('disabled', true);
+    $("#loading").text("Loading...")
     // Value of password_input from setup_page_dashboard.xml
     const sighting_value = $('#sighting_value').val();
     const sighting_desc = $('#sighting_desc').val();
@@ -95,31 +99,29 @@ require([
     data["sighting_tags"]=sighting_tags
     data['confidence_level']=confidence_level
     data['sighting_type']=sighting_type
-    // data['creds']=JSON.parse('{"creds":creds}')
-    // data['creds']=JSON.parse("[creds]");
-    
-    try{sighting_title 
-        response =  makeRequest('/services/create_sighting', data);
-        await response;
-        
+    data['creds'] = ""
+    for(var i=0;i<creds.length;i++){
+        if(creds[i]["eiq"]!=undefined){
+            first_cred = JSON.parse(creds[i]["eiq"])
+            data['creds']= first_cred["api_key"]
+            break;
+        }
+    }
+    data['proxy_pass'] = ""
+    for(var i=0;i<creds.length;i++){
+        if(creds[i]["proxy_pass"]!=undefined){
+            first_cred = JSON.parse(creds[i]["proxy_pass"])
+            data['proxy_pass']= first_cred["proxy_password"]
+            break;
+        }
+    }
+    try
+    { 
+        let response = await makeRequest('/services/create_sighting', data);
+        $("#loading").text("")
+        $("#msg").text(response["data"])
         }catch(e){
                 console.log(e)
         }
-        // if (!existingsighting) { 
-        //     sighting.create(
-        //         {
-        //             sighting_value: sighting_valuetosave,
-        //             sighting_desc: sighting_desctosave,
-        //             sighting_title: sighting_titletosave,
-        //             sighting_tags: sighting_tagstosave,
-        //             Confidence_level:confidence_leveltosave,
-        //             sighting_type: sighting_typetosave
-
-        //         });
-        //     $('#msg').html("Sighting created! View: https://ic-playground.eclecticiq.com/api/beta/sources/9a479225-37d1-4dae-9554-172eeccea193");
-        //     }
-    
     }
 })
-
-           

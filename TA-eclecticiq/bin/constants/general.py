@@ -1,5 +1,6 @@
 """General constants."""
 
+
 APP_NAME = "TA-eclecticiq"
 NOBODY = "nobody"  # nosec
 SESSION_KEY = "session_key"  # nosec
@@ -13,6 +14,10 @@ SORT = "sort"
 FILTER = "filter"
 DATA = "data"
 COUNT = "count"
+PAYLOAD = "payload"
+STATUS_STR = "status"
+HEADERS = "headers"
+AUTHORIZATION = "Authorization"
 
 BEARER_TOKEN = "BEARER_TOKEN"  # nosec
 NO_AUTH = "NO_AUTH"  # nosec
@@ -134,3 +139,5 @@ PROXY_USERNAME = "proxy_username"  # nosec
 PROXY_PASSWORD = "proxy_password"  # nosec
 
 STR_COLON = ":"
+CREDS = "creds"
+PROXY = "proxy"
