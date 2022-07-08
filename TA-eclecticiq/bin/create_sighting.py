@@ -1,40 +1,81 @@
-# Copyright (c) 2017-2020 IronNet
-
+"""Create Sighting Workflow Action."""
 import datetime
-from splunk.clilib import cli_common as cli
-
-import os
 import json
-import sys
-import requests
-from splunk.persistconn.application import PersistentServerConnectionApplication
 import logging
 import logging.handlers
-import splunk
+import os
+import sys
 import traceback
 
-
+import requests
+import splunk
+from splunk.clilib import cli_common as cli
+from splunk.persistconn.application import PersistentServerConnectionApplication
 
 (path, _) = os.path.split(os.path.realpath(__file__))
 sys.path.insert(0, path)
-import ta_eclecticiq_declare
-from constants.messages import API_ERROR, COULD_NOT_CREATE_SIGHTING, CREDS_NOT_FOUND, EVENTS_RESPONSE_ERROR_CODE, REQUEST_FAILED, SIGHTING_CREATED
-from utils.formatters import format_proxy_uri
-from constants.sighting_right_click import CONFIDENCE, CONFIDENCE_LEVEL, CONTENT_TYPE, DATA_STR, DESCRIPTION, INGEST_TIME, META, SECURITY_CONTROL, SIGHTING_DESC, SIGHTING_SCHEMA, SIGHTING_TAGS, SIGHTING_TITLE, SIGHTING_TYPE, SIGHTING_VALUE, START_TIME, TAGS, TIME,TIME_FORMAT, TEXT_PLAIN, TIMESTAMP_STR, TITLE, TYPE, VALUE, INPUT_NAME
-from constants.general import AUTHORIZATION, CREDS, HEADERS, PAYLOAD, PROXY, PROXY_PASSWORD, STATUS_STR, URL
-from constants.defaults import LOCAL_DIR, ACCOUNTS_CONF, SETTINGS_CONF
-
+import ta_eclecticiq_declare  # noqa pylint: disable=C0413,W0611
+from constants.defaults import (  # pylint: disable=C0413
+    ACCOUNTS_CONF,
+    LOCAL_DIR,
+    SETTINGS_CONF,
+)  # pylint: disable=C0413
+from constants.general import (  # pylint: disable=C0413
+    AUTHORIZATION,
+    CREDS,
+    HEADERS,
+    PAYLOAD,
+    PROXY,
+    PROXY_PASSWORD,
+    STATUS_STR,
+    URL,
+)  # pylint: disable=C0413
+from constants.messages import (
+    API_ERROR,
+    COULD_NOT_CREATE_SIGHTING,
+    CREDS_NOT_FOUND,
+    EVENTS_RESPONSE_ERROR_CODE,
+    REQUEST_FAILED,
+    SIGHTING_CREATED,
+)  # pylint: disable=C0413
+from constants.sighting_right_click import (
+    CONFIDENCE,
+    CONFIDENCE_LEVEL,
+    CONTENT_TYPE,
+    DATA_STR,
+    DESCRIPTION,
+    INGEST_TIME,
+    INPUT_NAME,
+    META,
+    SECURITY_CONTROL,
+    SIGHTING_DESC,
+    SIGHTING_SCHEMA,
+    SIGHTING_TAGS,
+    SIGHTING_TITLE,
+    SIGHTING_TYPE,
+    SIGHTING_VALUE,
+    START_TIME,
+    TAGS,
+    TEXT_PLAIN,
+    TIME,
+    TIME_FORMAT,
+    TIMESTAMP_STR,
+    TITLE,
+    TYPE,
+    VALUE,
+)  # pylint: disable=C0413
+from utils.formatters import format_proxy_uri  # pylint: disable=C0413
 
 if sys.platform == "win32":
     import msvcrt
 
     # Binary mode is required for persistent mode on Windows.
-    msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-    msvcrt.setmode(sys.stderr.fileno(), os.O_BINARY)
+    msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # pylint: disable=E1101
+    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)  # pylint: disable=E1101
+    msvcrt.setmode(sys.stderr.fileno(), os.O_BINARY)  # pylint: disable=E1101
 
 # Setup logging
-logger = logging.getLogger("splunk.ironnet_splunk")
+logger = logging.getLogger("splunk.eiq")
 SPLUNK_HOME = os.environ["SPLUNK_HOME"]
 
 LOGGING_DEFAULT_CONFIG_FILE = os.path.join(SPLUNK_HOME, "etc", "log.cfg")
@@ -53,29 +94,36 @@ splunk.setupSplunkLogger(
 )
 
 
-class Send(PersistentServerConnectionApplication):
-    def __init__(self, command_line, command_arg):
+class Send(PersistentServerConnectionApplication):  # type: ignore
+    """Sends the sighting to EclecticIQ Platform."""
+
+    def __init__(self, command_line, command_arg):  # pylint: disable=W0613
         PersistentServerConnectionApplication.__init__(self)
 
-    def parse_form_data(self, form_data):
+    @staticmethod
+    def parse_form_data(form_data):
+        """Parse the payload.
+
+        :param form_data: payload of the request
+        :type form_data: dict
+        """
         parsed = {}
         for [key, value] in form_data:
             parsed[key] = value
         return parsed
 
-    def send_request(self, url, headers, proxy, sighting):
-        """Send an API request to the URL provided with headers and parameters
+    @staticmethod
+    def send_request(url, headers, proxy, sighting):
+        """Send an API request to the URL provided with headers and parameters.
 
-        :param logger: Splunk logger to send request
-        :type logger: BaseModInput
         :param url: API URL to send request
         :type url: str
-        :param params: Parameters to be sent to API
-        :type params: dict
         :param headers: Headers to be included in the request
         :type headers: dict
         :param proxy: proxy details to be included in the request
         :type proxy: dict
+        :param sighting: payload of sighting
+        :type sighting: dict
         :return: API response
         :rtype: dict
         """
@@ -135,19 +183,35 @@ class Send(PersistentServerConnectionApplication):
             raise err
         return response
 
-    def create_response(self, status, message):
+    @staticmethod
+    def create_response(status, message):
+        """Create response to send back to JS.
+
+        :param status: status code
+        :type status: int
+        :param message: message to send
+        :type message: str
+        :return: response dict
+        :rtype: dict
+        """
         return {
             PAYLOAD: message,
             STATUS_STR: status,
-            HEADERS:{
-                CONTENT_TYPE: TEXT_PLAIN
-            }
+            HEADERS: {CONTENT_TYPE: TEXT_PLAIN},
         }
 
-    def get_url(self, path):
+    @staticmethod
+    def get_url(api_conf_path):
+        """Get the URL from accounts.conf.
+
+        :param api_conf_path: path to the conf file
+        :type api_conf_path: str
+        :return: URL value from the conf
+        :rtype: str
+        """
         apikeyconf = {}
-        if os.path.exists(path):
-            localconf = cli.readConfFile(path)
+        if os.path.exists(api_conf_path):
+            localconf = cli.readConfFile(api_conf_path)
             for name, content in localconf.items():
                 if name != "default":
                     account_name = name
@@ -157,15 +221,24 @@ class Send(PersistentServerConnectionApplication):
                     apikeyconf[name] = content
             return apikeyconf[account_name][URL]
 
-    def get_proxy(self, path):
-        if os.path.exists(path):
-            localsettingsconf = cli.readConfFile(path)
+    @staticmethod
+    def get_proxy(settings_conf_path):
+        """Get the proxy from settings.conf.
+
+        :param settings_conf_path: path to the conf file
+        :type settings_conf_path: str
+        :return: proxy information from the conf
+        :rtype: dict
+        """
+        if os.path.exists(settings_conf_path):
+            localsettingsconf = cli.readConfFile(settings_conf_path)
             for stanza, fields in localsettingsconf.items():
                 if stanza == PROXY:
                     return fields
 
-    def handle(self, in_string):
-        """Handles request made to the endpoint services/create_sighting
+    @staticmethod
+    def handle(in_string):
+        """Handle request made to the endpoint services/create_sighting.
 
         :param self: Object of the class
         :type in_string: Send
@@ -174,22 +247,21 @@ class Send(PersistentServerConnectionApplication):
         :return: Response to be send
         :rtype: dict
         """
-
         logger.info("Request received.")
         in_dict = json.loads(in_string)
         appdir = os.path.dirname(os.path.dirname(__file__))
         localconfpath = os.path.join(appdir, LOCAL_DIR, ACCOUNTS_CONF)
-        url = self.get_url(localconfpath)
+        url = Send.get_url(localconfpath)
         localsettings_conf = os.path.join(appdir, LOCAL_DIR, SETTINGS_CONF)
         settingsconf = {}
-        settingsconf[PROXY] = self.get_proxy(localsettings_conf)
-        payload = self.parse_form_data(in_dict["form"])
+        settingsconf[PROXY] = Send.get_proxy(localsettings_conf)
+        payload = Send.parse_form_data(in_dict["form"])
         today = datetime.datetime.utcnow().date()
         sighting = SIGHTING_SCHEMA
         time = datetime.datetime.utcnow()
         api_key = payload.get(CREDS)
         if not api_key:
-            return self.create_response(401, CREDS_NOT_FOUND)
+            return Send.create_response(401, CREDS_NOT_FOUND)
         proxy_pass = payload.get("proxy_pass") if payload.get("proxy_pass") else ""
         if settingsconf[PROXY]:
             settingsconf[PROXY][PROXY_PASSWORD] = proxy_pass
@@ -215,14 +287,15 @@ class Send(PersistentServerConnectionApplication):
         )
         headers = {AUTHORIZATION: f"Bearer {api_key}"}
         try:
-            response = self.send_request(url + "/entities", headers, settingsconf[PROXY], sighting)
+            response = Send.send_request(
+                url + "/entities", headers, settingsconf[PROXY], sighting
+            )
         except Exception as err:
-            return self.create_response(500, err)
+            return Send.create_response(500, err)
         if not (str(response.status_code)).startswith("2"):
             logger.info(REQUEST_FAILED)
-            return self.create_response(response.status_code, COULD_NOT_CREATE_SIGHTING)
-        else:
-            content = json.loads(response.content)
-            message = SIGHTING_CREATED.format(url, content[DATA_STR]["id"])
-            logger.info(message)
-            return self.create_response(response.status_code, message)
+            return Send.create_response(response.status_code, COULD_NOT_CREATE_SIGHTING)
+        content = json.loads(response.content)
+        message = SIGHTING_CREATED.format(url, content[DATA_STR]["id"])
+        logger.info(message)
+        return Send.create_response(response.status_code, message)
