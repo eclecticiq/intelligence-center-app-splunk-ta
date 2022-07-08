@@ -62,6 +62,7 @@
                              within javascript/setup_page.js -->
                         <button id='setup_button' >Save</button>
                         <br/>
+                        <p id="loading" style="color:blue"></p>
                         <p id="msg"></p>
                     </div>
                 </div>

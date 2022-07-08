@@ -14,6 +14,7 @@ from constants.general import (
     STR_COLON,
     STR_FIVE,
 )
+from constants.defaults import DEFAULT_VERIFY_SSL
 from constants.messages import API_ERROR, EVENTS_RESPONSE_ERROR_CODE
 
 
@@ -66,7 +67,7 @@ def send_request(helper, url, headers, params, proxy, configs):
             url,
             headers=headers,
             params=params,
-            verify=False,
+            verify=DEFAULT_VERIFY_SSL,
             timeout=50,
             proxies=proxy_settings,
         )

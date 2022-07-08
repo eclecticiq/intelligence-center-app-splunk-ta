@@ -19,3 +19,10 @@ DEFAULT_TIME = "24h"
 
 # Default ordering paramter value
 DEFAULT_NUMBER_OF_RETRIES = 3
+
+
+# Conf files
+
+ACCOUNTS_CONF = "ta_eclecticiq_account.conf"
+SETTINGS_CONF = "ta_eclecticiq_settings.conf"
+LOCAL_DIR = "local"

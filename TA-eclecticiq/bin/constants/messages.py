@@ -223,3 +223,10 @@ DELETE_OBSERVABLES_DATA_NOT_OLDER = "Delete observable data is not older {} {}"
 
 API_ERROR = "Input: {input} Error: {err}"
 EVENTS_RESPONSE_ERROR_CODE = "input {input} API responded with error {code}: {error}"
+
+# Create Sighting Right Click
+
+SIGHTING_CREATED = "Sighting Created Successfully. Link: {}/entities/{}"
+REQUEST_FAILED = "Request failed!Please try again!!"
+COULD_NOT_CREATE_SIGHTING = "Could not create sighting. Please try again!"
+CREDS_NOT_FOUND = "Please store the credentials first from the configuration screen."
