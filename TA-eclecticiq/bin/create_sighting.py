@@ -12,9 +12,11 @@ import splunk
 from splunk.clilib import cli_common as cli
 from splunk.persistconn.application import PersistentServerConnectionApplication
 
+
 (path, _) = os.path.split(os.path.realpath(__file__))
 sys.path.insert(0, path)
 import ta_eclecticiq_declare  # noqa pylint: disable=C0413,W0611
+import splunklib.client as client  # pylint: disable=C0413
 from constants.defaults import (  # pylint: disable=C0413
     ACCOUNTS_CONF,
     LOCAL_DIR,
@@ -35,6 +37,7 @@ from constants.messages import (
     COULD_NOT_CREATE_SIGHTING,
     CREDS_NOT_FOUND,
     EVENTS_RESPONSE_ERROR_CODE,
+    JSON_EXCEPTION,
     REQUEST_FAILED,
     SIGHTING_CREATED,
 )  # pylint: disable=C0413
@@ -113,7 +116,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         return parsed
 
     @staticmethod
-    def send_request(url, headers, proxy, sighting):
+    def send_request(method, url, headers, proxy, data, params=None):
         """Send an API request to the URL provided with headers and parameters.
 
         :param url: API URL to send request
@@ -132,15 +135,26 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         else:
             proxy_settings = None
         try:
-            response = requests.request(
-                "post",
-                url,
-                headers=headers,
-                data=json.dumps(sighting),
-                verify=True,
-                timeout=50,
-                proxies=proxy_settings,
-            )
+            if method == "get":
+                response = requests.request(
+                    method,
+                    url,
+                    headers=headers,
+                    params=params,
+                    verify=True,
+                    timeout=50,
+                    proxies=proxy_settings,
+                )
+            else:
+                response = requests.request(
+                    method,
+                    url,
+                    headers=headers,
+                    data=json.dumps(data),
+                    verify=True,
+                    timeout=50,
+                    proxies=proxy_settings,
+                )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             if str(response.status_code).startswith("5"):
@@ -237,7 +251,84 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
                     return fields
 
     @staticmethod
-    def handle(in_string):
+    def get_response_content(response):
+        """Get the response content from the response.
+
+        :param response: Response to retrieve content
+        :type response: Response
+        :return: Response content
+        :rtype: dict / None
+        """
+        content = {}
+        try:
+            content = json.loads(response.content)
+        except json.decoder.JSONDecodeError as error:
+            logger.error(JSON_EXCEPTION.format(error))
+
+        return content
+
+    @staticmethod
+    def format_data(sighting, meta):
+        """Fomat the data to store in KV store.
+
+        :param sighting: Sighting related data
+        :type sighting: dict
+        :param meta: meta data from events
+        :type meta: dict
+        :return: formated dictionary to store
+        :rtype: dict
+        """
+        data = {}
+        data["alert_field"] = meta["field"]
+        data["alert_source"] = "splunk_workflow"
+        data["src"] = meta["src"]
+        data["dest"] = meta["dest"]
+        data["event_hash"] = meta["event_hash"]
+        data["event_index"] = meta["index"]
+        data["event_host"] = meta["host"]
+        data["event_sourcetype"] = meta["sourcetype"]
+        data["event_time"] = meta["time"]
+        data["event_time_1"] = ""
+        data["feed_id_eiq"] = meta["feed_id_eiq"]
+        data["entity_title_eiq"] = sighting[DATA_STR][DATA_STR][TITLE]
+        data["meta_entity_url_eiq"] = meta["meta_entity_url_eiq"]
+        data["meta_tags_eiq"] = sighting[DATA_STR][META][TAGS]
+        data["sighting"] = ""
+        data["source_name_eiq"] = ""
+        data["timestamp_eiq"] = sighting[DATA_STR][DATA_STR][TIMESTAMP_STR]
+        data["type_eiq"] = sighting[DATA_STR][DATA_STR][SECURITY_CONTROL][TYPE]
+        data["value_eiq"] = sighting[DATA_STR][DATA_STR][VALUE]
+        data["value_url_eiq"] = ""
+        return data
+
+    @staticmethod
+    def store_sighting(data, session_key):
+        """Store sighting in Splunk KV store.
+
+        :param data: data to store
+        :type data: dict
+        :param session_key: session key for authentication
+        :type session_key: str
+        :return: stored or not stored
+        :rtype: Bool,str
+        """
+        logger.info("In store sighting")
+        insertion = False
+        logger.info(data)
+        service = client.connect(token=session_key, owner="nobody", app="TA-eclecticiq")
+
+        collection = service.kvstore["eiq_alerts_list"]
+        try:
+            response = collection.data.insert(json.dumps(data))
+            logger.info(response)
+            insertion = response.get("_key")
+        except requests.HTTPError as error:
+            logger.info(error)
+        except Exception as err:
+            logger.info(err)
+        return insertion
+
+    def handle(self, in_string):  # pylint: disable=R0915,R0201
         """Handle request made to the endpoint services/create_sighting.
 
         :param self: Object of the class
@@ -249,6 +340,8 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         """
         logger.info("Request received.")
         in_dict = json.loads(in_string)
+        session_dict = in_dict.get("session")
+        session_key = session_dict.get("authtoken")
         appdir = os.path.dirname(os.path.dirname(__file__))
         localconfpath = os.path.join(appdir, LOCAL_DIR, ACCOUNTS_CONF)
         url = Send.get_url(localconfpath)
@@ -265,6 +358,19 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         proxy_pass = payload.get("proxy_pass") if payload.get("proxy_pass") else ""
         if settingsconf[PROXY]:
             settingsconf[PROXY][PROXY_PASSWORD] = proxy_pass
+        meta_data = {}
+        meta_data["host"] = payload["host"]
+        meta_data["index"] = payload["index"]
+        meta_data["source"] = payload["source"]
+        meta_data["sourcetype"] = payload["sourcetype"]
+        meta_data["time"] = payload["time"]
+        meta_data["field"] = payload["field"]
+        meta_data["src"] = payload["src"]
+        meta_data["dest"] = payload["dest"]
+        meta_data["event_hash"] = payload["event_hash"]
+        meta_data["feed_id_eiq"] = payload["feed_id_eiq"]
+        meta_data["meta_entity_url_eiq"] = payload["meta_entity_url_eiq"]
+
         sighting[DATA_STR][DATA_STR][VALUE] = payload[SIGHTING_VALUE]
         sighting[DATA_STR][DATA_STR][DESCRIPTION] = payload[SIGHTING_DESC]
         sighting[DATA_STR][DATA_STR][TIMESTAMP_STR] = datetime.datetime.strftime(
@@ -288,7 +394,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         headers = {AUTHORIZATION: f"Bearer {api_key}"}
         try:
             response = Send.send_request(
-                url + "/entities", headers, settingsconf[PROXY], sighting
+                "post", url + "/entities", headers, settingsconf[PROXY], sighting
             )
         except Exception as err:
             return Send.create_response(500, err)
@@ -296,6 +402,21 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
             logger.info(REQUEST_FAILED)
             return Send.create_response(response.status_code, COULD_NOT_CREATE_SIGHTING)
         content = json.loads(response.content)
-        message = SIGHTING_CREATED.format(url, content[DATA_STR]["id"])
+        hostname = url.split("/")
+        hostname = "/".join(hostname[:-2])
+        message = SIGHTING_CREATED.format(hostname, content[DATA_STR]["id"])
         logger.info(message)
+        try:
+            storage_data = Send.format_data(sighting, meta_data)
+            is_stored = Send.store_sighting(storage_data, session_key)
+            if not is_stored:
+                logger.info(
+                    "Sighting is not stored. link:{}/entity/{}.".format(
+                        hostname, content[DATA_STR]["id"]
+                    )
+                )
+            else:
+                logger.info("Sighting is stored. Key:{}.".format(is_stored))
+        except Exception:
+            logger.info(traceback.format_exc())
         return Send.create_response(response.status_code, message)

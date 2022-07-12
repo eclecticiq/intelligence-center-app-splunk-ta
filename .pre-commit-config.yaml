@@ -18,7 +18,7 @@ repos:
         args:
           - --py3-plus
           - --py36-plus
-        exclude: app/collector/custom_eiq_action.py
+        exclude: sighting.py
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
