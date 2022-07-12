@@ -20,7 +20,7 @@
                         <br />
                         <span class="span">Sighting Desc</span>
                         <div class='text'>
-                            <input type='Sighting Desc' id='sighting_desc' placeHolder="Sighting Desc" value="Qradar created Sighting." ></input>
+                            <input type='Sighting Desc' id='sighting_desc' placeHolder="Sighting Desc" value="Splunk created Sighting." ></input>
                         </div>
                         <br />
                         <span class="span">Sighting Title</span>
@@ -30,7 +30,7 @@
                         <br />
                         <span class="span">Sighting tags delimted by comma</span>
                         <div class='text'>
-                            <input type='Sighting Tags' id='sighting_tags' placeHolder="Qradar sighting, Manually generated"  value="Qradar sighting, Manually generated"></input>
+                            <input type='Sighting Tags' id='sighting_tags' placeHolder="Splunk sighting, Manually generated"  value="Splunk sighting, Manually generated"></input>
                         </div>
                         <br />
 

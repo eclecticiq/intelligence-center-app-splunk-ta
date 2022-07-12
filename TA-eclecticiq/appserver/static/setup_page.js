@@ -10,18 +10,27 @@ const pwRealm = "TA-eclecticiq_realm";
 
 // Splunk Web Framework Provided files
 require([
-    "jquery", "splunkjs/splunk", "splunkjs/mvc",
+    "jquery", "splunkjs/splunk", "splunkjs/mvc"
 ], function ($, splunkjs, mvc) {
     console.log("setup_page.js require(...) called");
     $("#setup_button").prop('disabled', false);
     tokens = mvc.Components.get("default");
     var value = tokens.get("q")
+    var index = tokens.get("index")
+    var host = tokens.get("host")
+    var source = tokens.get("source")
+    var sourcetype = tokens.get("sourcetype")
+    var time = tokens.get("event_time")
+    var field = tokens.get("field_name")
     var http = new splunkjs.SplunkWebHttp();
+    
+    // console.log("sessionkey = "+splunkjs.Context)
 
     var service = new splunkjs.Service(
         http,
         appNamespace,
     );
+    // console.log("Sessionkey: ", $.cookie("splunk_sessionkey"));
     var storagePasswords = service.storagePasswords();
     var creds = [];
     var response = storagePasswords.fetch(
@@ -99,6 +108,12 @@ require([
     data["sighting_tags"]=sighting_tags
     data['confidence_level']=confidence_level
     data['sighting_type']=sighting_type
+    
+    record["src"] = ""
+    record["dest"] = ""
+    record["event_hash"] = ""
+    record["feed_id_eiq"] = ""
+    record["meta_entity_url_eiq"] = ""
     data['creds'] = ""
     for(var i=0;i<creds.length;i++){
         if(creds[i]["eiq"]!=undefined){
@@ -115,6 +130,13 @@ require([
             break;
         }
     }
+    if(index!=undefined){data["index"] = index}else{data["index"]=""}
+    if(host!=undefined){data["host"] = host}else{data["host"]=""}
+    if(source!=undefined){data["source"] = source}else{data["source"]=""}
+    if(sourcetype!=undefined){data["sourcetype"] = sourcetype}else{data["sourcetype"]=""}
+    if(time!=undefined){data["time"] = time}else{data["time"]=""}
+    if(field!=undefined){data["field"] = field}else{data["field"]=""}
+    
     try
     { 
         let response = await makeRequest('/services/create_sighting', data);
