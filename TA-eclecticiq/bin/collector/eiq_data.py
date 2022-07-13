@@ -121,8 +121,7 @@ def retry():
         def wrapper(*args, **kwargs):
             helper_method = args[0].helper
             input_name = str(helper_method.get_input_stanza_names())
-            helper_method.log_info(f"ARGS :{args}")
-            helper_method.log_info(f"KWARGS: {kwargs}")
+
             num_attempts = args[-2]
             sleeptime = args[-1]
             for attempt in range(num_attempts):
