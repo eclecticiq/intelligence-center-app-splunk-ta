@@ -1,6 +1,16 @@
 # encoding = utf-8
 """Input module for entity and observable collection."""
-
+from constants.defaults import (
+    ADDITIONAL_PARAM_NUMBER_OF_RETRIES,
+    ADDITIONAL_PARAM_PAGE_SIZE,
+    ADDITIONAL_PARAM_SLEEP_TIME,
+    ADDITIONAL_PARAMTERS_CONFIG,
+    ADDITIONAL_PARAMTERS_STANZA,
+    DEFAULT_NUMBER_OF_RETRIES,
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_SLEEP_TIME,
+)
+from splunk.clilib import cli_common as cli
 from constants.general import (
     API_KEY,
     DOMAIN,
@@ -79,7 +89,32 @@ def collect_events(helper, event_writer):
     config_details[OBSERVABLE_INGEST_TYPES] = observable_ingest_types
     # Fetching proxy data
     proxy_settings = helper.get_proxy()
+    helper.log_info(proxy_settings)
+
+    helper.log_info(
+        cli.getConfStanza(ADDITIONAL_PARAMTERS_CONFIG, ADDITIONAL_PARAMTERS_STANZA)
+    )
+    configs = cli.getConfStanza(
+        ADDITIONAL_PARAMTERS_CONFIG, ADDITIONAL_PARAMTERS_STANZA
+    )
+    config_details[ADDITIONAL_PARAM_PAGE_SIZE] = (
+        int(configs.get(ADDITIONAL_PARAM_PAGE_SIZE))
+        if configs.get(ADDITIONAL_PARAM_PAGE_SIZE)
+        else DEFAULT_PAGE_SIZE
+    )
+    config_details[ADDITIONAL_PARAM_NUMBER_OF_RETRIES] = (
+        int(configs.get(ADDITIONAL_PARAM_NUMBER_OF_RETRIES))
+        if configs.get(ADDITIONAL_PARAM_NUMBER_OF_RETRIES)
+        else DEFAULT_NUMBER_OF_RETRIES
+    )
+    config_details[ADDITIONAL_PARAM_SLEEP_TIME] = (
+        int(configs.get(ADDITIONAL_PARAM_SLEEP_TIME))
+        if configs.get(ADDITIONAL_PARAM_SLEEP_TIME)
+        else DEFAULT_SLEEP_TIME
+    )
+
     helper.log_info(config_details)
+
     try:
         eiq_api = EIQApi(helper, event_writer)
         eiq_api.get_observables(config_details, proxy_settings)
