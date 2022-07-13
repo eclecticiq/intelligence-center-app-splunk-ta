@@ -109,11 +109,11 @@ require([
     data['confidence_level']=confidence_level
     data['sighting_type']=sighting_type
     
-    record["src"] = ""
-    record["dest"] = ""
-    record["event_hash"] = ""
-    record["feed_id_eiq"] = ""
-    record["meta_entity_url_eiq"] = ""
+    data["src"] = ""
+    data["dest"] = ""
+    data["event_hash"] = ""
+    data["feed_id_eiq"] = ""
+    data["meta_entity_url_eiq"] = ""
     data['creds'] = ""
     for(var i=0;i<creds.length;i++){
         if(creds[i]["eiq"]!=undefined){
