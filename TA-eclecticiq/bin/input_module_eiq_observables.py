@@ -11,6 +11,7 @@ from constants.general import (
     IP,
     OBSERVABLE_INGEST_TYPES,
     OUTGOING_FEEDS,
+    PORT,
     STANZA,
     START_DATE,
     URI,
@@ -57,6 +58,7 @@ def collect_events(helper, event_writer):
     opt_uri = helper.get_arg(URI, input_stanza_name)
     opt_filehash = helper.get_arg(FILEHASH, input_stanza_name)
     opt_email = helper.get_arg(EMAIL, input_stanza_name)
+    opt_port = helper.get_arg(PORT, input_stanza_name)
 
     observable_ingest_types = {}
     observable_ingest_types[DOMAIN] = opt_domain
@@ -64,6 +66,7 @@ def collect_events(helper, event_writer):
     observable_ingest_types[URI] = opt_uri
     observable_ingest_types[FILEHASH] = opt_filehash
     observable_ingest_types[EMAIL] = opt_email
+    observable_ingest_types[PORT] = opt_port
 
     config_details = {}
 

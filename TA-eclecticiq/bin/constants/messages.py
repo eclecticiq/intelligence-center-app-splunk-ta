@@ -230,3 +230,35 @@ SIGHTING_CREATED = "Sighting Created Successfully. Link: {}/entity/{}"
 REQUEST_FAILED = "Request failed!Please try again!!"
 COULD_NOT_CREATE_SIGHTING = "Could not create sighting. Please try again!"
 CREDS_NOT_FOUND = "Please store the credentials first from the configuration screen."
+
+# Validator messages.
+PROXY_FETCHING_ERROR_LOG_MESSAGE = (
+    "Error while fetching proxy information.\n Error: {msg}"
+)
+
+SUCCESS_MSG = "Connection successful."
+ERROR_MSG = "Connection unsuccessful."
+
+API_ERROR = "Error: {err}"
+API_KEY_REQUIRED_MSG = "API Key is required."
+SSL_ERROR_MSG = "{error_msg_prefix} Error: Please check the SSL Cretificate of the URL."
+INVALID_CREDS_ERROR_MSG = "{error_msg_prefix} Please enter valid URL, API Key or Proxy."
+INVALID_CREDS_LOG_ERROR_MSG = (
+    "{msg} Please enter valid URL, API Key or Proxy. Error: {err}"
+)
+INVALID_URL_ERROR_MSG = "URL must start with https."
+
+
+CREDENTIALS_GIVEN_ARE_CORRECT = "Credentials entered are correct."
+START_DATE_NOT_VALID_FORMAT = "Start date is not of valid format."
+
+BACKFILL_TIME_OLDER = "Start date is older than 90 days."
+SELECT_ATLEAST_ONE_OBSERVABLE_TYPE = "Atleast one observable type must be selected."
+SELECT_ATLEAST_ONE_OBSERVABLE_TYPE_TO_BE_INGESTED = (
+    "Select atleast one observable type to be ingested."
+)
+
+MIN_AND_MAX_INTERVAL = "Interval must be between 60s and 90 days."
+INTERVAL_MUST_BE_BETWEEN_MIN_AND_MAX_INTERVAL = (
+    "Interval must be between 60s and 7776000s"
+)

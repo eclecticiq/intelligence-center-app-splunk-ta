@@ -1,4 +1,5 @@
 import ta_eclecticiq_declare
+from validator.validate import ValidateAccount
 
 from splunktaucclib.rest_handler.endpoint import (
     field,
@@ -27,10 +28,7 @@ fields = [
         required=True,
         encrypted=False,
         default=None,
-        validator=validator.String(
-            min_len=1,
-            max_len=8192,
-        ),
+        validator=ValidateAccount()
     ),
 ]
 model = RestModel(fields, name=None)
