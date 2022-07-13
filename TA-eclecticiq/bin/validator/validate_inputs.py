@@ -111,7 +111,7 @@ class ValidateInputs(Validator):  # type: ignore
         :return: True if interval lies between min and max interval else False
         :rtype: boolean
         """
-        if MIN_INTERVAL <= interval <= MAX_INTERVAL:
+        if MIN_INTERVAL <= int(interval) <= MAX_INTERVAL:
             logger.info(MIN_AND_MAX_INTERVAL)
             return True
         return False
@@ -147,6 +147,7 @@ class ValidateInputs(Validator):  # type: ignore
             return is_selected
 
         is_valid_interval = ValidateInputs.validate_interval(data["interval"])
+
         if not is_valid_interval:
             logger.info(INTERVAL_MUST_BE_BETWEEN_MIN_AND_MAX_INTERVAL)
             self.put_msg(INTERVAL_MUST_BE_BETWEEN_MIN_AND_MAX_INTERVAL)
