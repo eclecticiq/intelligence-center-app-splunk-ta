@@ -1,4 +1,5 @@
 """Validate Inputs."""
+import ta_eclecticiq_declare  # pylint: disable=W0611 # noqa: F401
 import os
 import splunk.admin as admin
 
