@@ -54,7 +54,7 @@ fields = [
         "port", required=False, encrypted=False, default=None, validator=None
     ),
     field.RestField(
-        "start_date", required=False, encrypted=False, default=None, validator=ValidateInputs()
+        "start_date", required=True, encrypted=False, default=None, validator=ValidateInputs()
     ),
     field.RestField("disabled", required=False, validator=None),
 ]
