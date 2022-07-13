@@ -3,7 +3,11 @@ import functools
 import json
 
 import time
-from constants.defaults import DEFAULT_LIMIT
+from constants.defaults import (
+    ADDITIONAL_PARAM_NUMBER_OF_RETRIES,
+    ADDITIONAL_PARAM_SLEEP_TIME,
+    DEFAULT_LIMIT,
+)
 
 from utils.convertors import get_current_time
 from utils.formatters import send_request
@@ -486,8 +490,8 @@ class EIQApi:
                     entity_id,
                     config_details,
                     proxy_settings,
-                    3,
-                    300,
+                    config_details[ADDITIONAL_PARAM_NUMBER_OF_RETRIES],
+                    config_details[ADDITIONAL_PARAM_SLEEP_TIME],
                 )
                 # fetch data and insert in kv  #response_observables =
 
@@ -610,8 +614,8 @@ class EIQApi:
                 outgoing_feed,
                 config_details,
                 proxy_settings,
-                3,
-                300,
+                config_details[ADDITIONAL_PARAM_NUMBER_OF_RETRIES],
+                config_details[ADDITIONAL_PARAM_SLEEP_TIME],
             )
             self.helper.log_info(
                 OBSERVABLES_AND_CHECKPOINT_RECEIVED.format(

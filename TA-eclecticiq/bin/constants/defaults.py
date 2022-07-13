@@ -26,3 +26,14 @@ DEFAULT_NUMBER_OF_RETRIES = 3
 ACCOUNTS_CONF = "ta_eclecticiq_account.conf"
 SETTINGS_CONF = "ta_eclecticiq_settings.conf"
 LOCAL_DIR = "local"
+
+# Additional Conf parameters
+ADDITIONAL_PARAMTERS_CONFIG = "ta_eclecticiq_settings"
+ADDITIONAL_PARAMTERS_STANZA = "additional_parameters"
+ADDITIONAL_PARAM_NUMBER_OF_RETRIES = "number_of_retries"
+ADDITIONAL_PARAM_PAGE_SIZE = "page_size"
+ADDITIONAL_PARAM_SLEEP_TIME = "sleep_time"
+
+
+# Default delete original key in mapping
+DEFAULT_SLEEP_TIME = 100
