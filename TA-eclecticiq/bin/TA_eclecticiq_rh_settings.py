@@ -72,9 +72,44 @@ fields_logging = [
 ]
 model_logging = RestModel(fields_logging, name="logging")
 
+fields_additional_parameters = [
+    field.RestField(
+        'number_of_retries',
+        required=True,
+        encrypted=False,
+        default=3,
+        validator=validator.Number(
+            min_val=1, 
+            max_val=3, 
+        )
+    ), 
+    field.RestField(
+        'sleep_time',
+        required=True,
+        encrypted=False,
+        default=100,
+        validator=validator.Number(
+            min_val=1, 
+            max_val=1000, 
+        )
+    ), 
+    field.RestField(
+        'page_size',
+        required=True,
+        encrypted=False,
+        default=100,
+        validator=validator.Number(
+            min_val=1, 
+            max_val=2000, 
+        )
+    )
+]
+model_additional_parameters = RestModel(fields_additional_parameters, name='additional_parameters')
+
+
 endpoint = MultipleModel(
     "ta_eclecticiq_settings",
-    models=[model_proxy, model_logging],
+    models=[model_proxy, model_logging,model_additional_parameters],
 )
 
 if __name__ == "__main__":

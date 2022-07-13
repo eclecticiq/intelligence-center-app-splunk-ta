@@ -69,6 +69,10 @@ class ModInputeiq_observables(modinput_wrapper.base_modinput.BaseModInput):
                                          description="Observable types to ingest",
                                          required_on_create=False,
                                          required_on_edit=False))
+        scheme.add_argument(smi.Argument("port", title="Port",
+                                         description="Observable types to ingest",
+                                         required_on_create=False,
+                                         required_on_edit=False))
         return scheme
 
     def get_app_name(self):
@@ -94,6 +98,7 @@ class ModInputeiq_observables(modinput_wrapper.base_modinput.BaseModInput):
         checkbox_fields.append("uri")
         checkbox_fields.append("filehash")
         checkbox_fields.append("email")
+        checkbox_fields.append("port")
         return checkbox_fields
 
     def get_global_checkbox_fields(self):

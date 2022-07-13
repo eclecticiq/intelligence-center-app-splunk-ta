@@ -210,6 +210,63 @@
                             "defaultValue": "INFO"
                         }
                     ]
+                },
+                {
+                    "name": "additional_parameters",
+                    "title": "Add-on Settings",
+                    "entity": [
+                        {
+                            "field": "number_of_retries",
+                            "label": "Number of Retries",
+                            "type": "text",
+                            "help": "Enter the number of retries to be made in case of exception in collecting data. Min: 1, Max: 3.",
+                            "required": true,
+                            "defaultValue": 3,
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        3
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "sleep_time",
+                            "label": "Sleep Time (seconds)",
+                            "type": "text",
+                            "help": "Enter the sleep time in seconds between each retry. Min: 1, Max: 1000. Recommended: 100",
+                            "required": true,
+                            "defaultValue": 100,
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        1000
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "page_size",
+                            "label": "Page Size",
+                            "type": "text",
+                            "help": "Enter the number of data that can be fetched from API in a single call. Min: 1, Max: 2000. Recommended: 100",
+                            "required": true,
+                            "defaultValue": 100,
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        2000
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         },
@@ -283,6 +340,10 @@
                     {
                         "field": "email",
                         "label": "Email"
+                    },
+                    {
+                        "field": "port",
+                        "label": "Port"
                     },
                     {
                         "field": "observable_time_to_live",
@@ -410,7 +471,15 @@
                             "help": "Observable types to ingest",
                             "required": false,
                             "type": "checkbox"
+                        },
+                        {
+                            "field": "port",
+                            "label": "Port",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
                         }
+
                     ]
                 },
                 {
@@ -442,6 +511,7 @@
                             "label": "Interval",
                             "type": "text",
                             "required": true,
+                            "defaultValue": "3600",
                             "help": "Time interval of input in seconds.",
                             "validators": [
                                 {

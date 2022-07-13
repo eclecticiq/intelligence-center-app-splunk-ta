@@ -16,7 +16,7 @@ fields = [
         "interval",
         required=True,
         encrypted=False,
-        default=None,
+        default="3600",
         validator=validator.Pattern(
             regex=r"""^\-[1-9]\d*$|^\d*$""",
         ),

@@ -9,3 +9,8 @@ proxy_rdns =
 
 [logging]
 loglevel =
+
+[additional_parameters]
+number_of_retries =
+sleep_time =
+page_size =
