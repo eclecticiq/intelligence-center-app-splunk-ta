@@ -16,6 +16,12 @@ require([
     console.log("lookup_observables.js require(...) called");
     tokens = mvc.Components.get("default");
     var value = tokens.get("q")
+    var index = tokens.get("index")
+    var host = tokens.get("host")
+    var source = tokens.get("source")
+    var sourcetype = tokens.get("sourcetype")
+    var event_time = tokens.get("event_time")
+    var field_name = tokens.get("field_name")
     $("#loading").text("Loading...")
 
     var http = new splunk_js_sdk.SplunkWebHttp();
@@ -80,6 +86,12 @@ require([
 
     completeSetup(data)
     sighting_url = "create_sighting_dashboard?q=" + value
+    sighting_url = sighting_url + "&index="+index+"&"
+    sighting_url = sighting_url + "&host="+host+"&"
+    sighting_url = sighting_url + "&source="+source+"&"
+    sighting_url = sighting_url + "&sourcetype="+sourcetype+"&"
+    sighting_url = sighting_url + "&event_time="+event_time+"&"
+    sighting_url = sighting_url + "&field_name="+field_name
 
     $("#create_sighting").click(function () { window.location.replace(sighting_url); });
 
