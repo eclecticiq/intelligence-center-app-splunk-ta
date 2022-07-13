@@ -3,13 +3,17 @@ import functools
 import json
 
 import time
+from constants.defaults import DEFAULT_LIMIT
 
 from utils.convertors import get_current_time
 from utils.formatters import send_request
 from splunk_apis.splunk_api import SplunkApi
 
-from constants.eiq_api import EIQ_ENTITIES, EIQ_OBSERVABLES_BY_ID
-from constants.general import (
+from constants.eiq_api import (  # pylint: disable=C0412
+    EIQ_ENTITIES,
+    EIQ_OBSERVABLES_BY_ID,
+)
+from constants.general import (  # pylint: disable=C0412
     _EIQ,
     _KEY,
     API_KEY,
@@ -69,7 +73,7 @@ from constants.general import (
     UNDERSCORE,
     VALUE,
 )
-from constants.messages import (
+from constants.messages import (  # pylint: disable=C0412
     BREAK_LOOP,
     CHECKPOINT_FOUND,
     CHECKPOINT_SUCCESSFULLY_WRITTEN,
@@ -565,11 +569,6 @@ class EIQApi:
             else:
                 parameters[OFFSET] = parameters[LIMIT]
 
-            if parameters[OFFSET] == 100:  # added for testing purpose
-                self.helper.log_info("BREAK_LOOP FOR OFFSET 100")
-                new_checkpoint = get_current_time()
-                break
-
             if count < parameters[LIMIT] or response == {}:
                 self.helper.log_info(BREAK_LOOP)
                 new_checkpoint = get_current_time()
@@ -599,8 +598,7 @@ class EIQApi:
             headers = {"Authorization": f"Bearer {config_details[API_KEY]}"}
 
             parameters = {
-                LIMIT: 100,
-                # LIMIT: DEFAULT_LIMIT,
+                LIMIT: DEFAULT_LIMIT,
                 FILTER_LAST_UPDATED_AT: start_date,
                 FILTER_OUTGOING_FEEDS: str(outgoing_feed),
                 SORT: DESC_BY_LAST_UPDATED_AT,

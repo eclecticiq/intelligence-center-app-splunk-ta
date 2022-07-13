@@ -1,3 +1,4 @@
+from validator.validate_inputs import ValidateInputs
 import ta_eclecticiq_declare
 
 from splunktaucclib.rest_handler.endpoint import (
@@ -50,7 +51,10 @@ fields = [
         "email", required=False, encrypted=False, default=None, validator=None
     ),
     field.RestField(
-        "start_date", required=False, encrypted=False, default=None, validator=None
+        "port", required=False, encrypted=False, default=None, validator=None
+    ),
+    field.RestField(
+        "start_date", required=False, encrypted=False, default=None, validator=ValidateInputs()
     ),
     field.RestField("disabled", required=False, validator=None),
 ]

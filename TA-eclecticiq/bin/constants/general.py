@@ -90,6 +90,7 @@ OUTGOING_FEEDS = "outgoing_feeds"
 
 DOMAIN = "domain"
 EMAIL = "email"
+PORT = "port"
 IP = "ip"
 URI = "uri"
 FILEHASH = "filehash"
@@ -141,3 +142,62 @@ PROXY_PASSWORD = "proxy_password"  # nosec
 STR_COLON = ":"
 CREDS = "creds"
 PROXY = "proxy"
+
+
+# Splunk rest realm
+REST_REALM = "__REST_CREDENTIAL__#{app}#configs/conf-{conf}"
+
+# HTTP METHODS
+HTTPS = "https://"
+POST = "POST"
+GET = "GET"
+
+# API
+AUTHORIZATION = "Authorization"
+CONTENT_TYPE = "Content-Type"
+APPLICATION_JSON = "application/json"
+ALERT_URL_FORMAT = "{serveraddress}/core/api-ua/alerts?key={api_key}&category={category}&Page={pagenumber}&size={pagesize}"
+
+# Categories
+DATA_LEAK = "Data_Leak"
+
+# API configuration parameters
+API_URL = "url"
+API_KEY = "api_key"
+START_DATE = "start_date"
+
+# Response keys
+BODY = "body"
+EVENTS = "events"
+MESSAGE = "message"
+
+
+# Query Prameters
+PARAM_START_TIME = "start_time"
+PARAM_END_TIME = "end_time"
+PARAM_ORDERTING = "ordering"
+PARAM_PAGE_SIZE = "page_size"
+PARAM_CURSOR = "cursor"
+
+STR_ONE = "1"
+STR_TILT = "`"
+STR_EMPTY_JSON = "{}"
+STR_EMPTY = ""
+STR_COLON = ":"
+STR_AT_THE_RATE = "@"
+DOMAIN_SEPERATOR = "://"
+
+# Permissions for EIQ platform
+READ_ENTITIES = "read entities"
+MODIFY_EXTRACTS = "modify entities"
+READ_EXTRACTS = "read extracts"
+READ_OUTGOING_FEEDS = "read outgoing-feeds"
+READ_PERMSSIONS = "read permissions"
+TIME_MILLISECOND = 1000
+
+NAME = "name"
+SELF = "self"
+PERMISSIONS = "permissions"
+
+MIN_INTERVAL = "60"
+MAX_INTERVAL = "7776000"
