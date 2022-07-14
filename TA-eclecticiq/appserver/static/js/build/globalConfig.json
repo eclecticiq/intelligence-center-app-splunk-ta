@@ -430,7 +430,7 @@
                         {
                             "field": "start_date",
                             "label": "Start date",
-                            "help": "Date for observable collection to be entered in yyyy-mm-ddThh:mm:ssZ format",
+                            "help": "Date for observable collection to be entered in yyyy-mm-ddThh:mm:ss.SSSS format",
                             "required": true,
                             "type": "text",
                             "options": {

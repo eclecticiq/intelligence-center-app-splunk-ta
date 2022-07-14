@@ -66,7 +66,8 @@ from constants.sighting_right_click import (
     VALUE,
 )  # pylint: disable=C0413
 from utils.formatters import format_proxy_uri  # pylint: disable=C0413
-from validator.logger_manager import setup_logging
+
+from validator.logger_manager import setup_logging  # pylint: disable=C0413
 
 if sys.platform == "win32":
     import msvcrt
@@ -77,7 +78,7 @@ if sys.platform == "win32":
     msvcrt.setmode(sys.stderr.fileno(), os.O_BINARY)  # pylint: disable=E1101
 
 # Setup logging
-logger = setup_logging("ta_eclecticiq_create_sighting", "INFO")
+logger = setup_logging("ta_eclecticiq_create_sighting", log_level=logging.DEBUG)
 
 
 class Send(PersistentServerConnectionApplication):  # type: ignore
