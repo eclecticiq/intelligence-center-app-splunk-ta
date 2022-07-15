@@ -63,14 +63,13 @@ require([
         });
     var creds = JSON.parse(localStorage.getItem("response"))
     localStorage.removeItem("response")
-
     $("#sighting_value").val(value)
     console.log("Sighting of : " + String(value))
     $("#sighting_title").val("Sighting of : " + String(value))
 
     // Register .on( "click", handler ) for "Complete Setup" button
     $("#setup_button").click(completeSetup);
-
+    
     async function makeRequest(url, data) {
         return new Promise((resolve, reject) => {
             const service = mvc.createService();
@@ -87,8 +86,15 @@ require([
     // onclick function for "Complete Setup" button from setup_page_dashboard.xml
  async function completeSetup() {
     console.log("setup_page.js completeSetup called");
+    $("#msg").text("")
+    if(creds.length<1 || creds[0]["eiq"] == undefined){
+        $("#msg").css('color', 'red');
+        $("#msg").text("Please save the configrations first.")
+        return
+    }
     $("#setup_button").prop('disabled', true);
     $("#loading").text("Loading...")
+    
     // Value of password_input from setup_page_dashboard.xml
     const sighting_value = $('#sighting_value').val();
     const sighting_desc = $('#sighting_desc').val();
@@ -100,7 +106,34 @@ require([
 
     var confidence_level_obj = document.getElementById("confidence_level");
     var confidence_level = confidence_level_obj.options[confidence_level_obj.selectedIndex].text;
-
+    if(sighting_value == ""){
+        $("#loading").text("")
+        $("#msg").css('color', 'red');
+        $("#msg").text("Sighting Value field is required!")
+        $("#setup_button").prop('disabled', false);
+        return
+    }
+    if(sighting_desc == ""){
+        $("#loading").text("")
+        $("#msg").css('color', 'red');
+        $("#msg").text("Sighting Description field is required!")
+        $("#setup_button").prop('disabled', false);
+        return
+    }
+    if(sighting_title == ""){
+        $("#loading").text("")
+        $("#msg").css('color', 'red');
+        $("#msg").text("Sighting Title field is required!")
+        $("#setup_button").prop('disabled', false);
+        return
+    }
+    if(sighting_tags == ""){
+        $("#loading").text("")
+        $("#msg").css('color', 'red');
+        $("#msg").text("Sighting Tags field is required!")
+        $("#setup_button").prop('disabled', false);
+        return
+    }
     const data = {}
     data["sighting_value"]=sighting_value
     data["sighting_desc"]=sighting_desc
@@ -141,9 +174,15 @@ require([
     { 
         let response = await makeRequest('/services/create_sighting', data);
         $("#loading").text("")
+        $("#msg").css('color', 'blue');
         $("#msg").text(response["data"])
+        $("#setup_button").prop('disabled', false);
         }catch(e){
+                $("#loading").text("")
                 console.log(e)
+                $("#msg").css('color', 'red');
+                $("#msg").text(e["data"])
+                $("#setup_button").prop('disabled', false);
         }
     }
 })

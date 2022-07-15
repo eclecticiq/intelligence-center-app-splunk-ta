@@ -1,10 +1,9 @@
 """Create Sighting Workflow Action."""
 import datetime
 import json
-import logging
-import logging.handlers
 import os
 import sys
+import re
 import traceback
 
 import requests
@@ -67,6 +66,7 @@ from constants.sighting_right_click import (
     VALUE,
 )  # pylint: disable=C0413
 from utils.formatters import format_proxy_uri  # pylint: disable=C0413
+
 from validator.logger_manager import setup_logging  # pylint: disable=C0413
 
 if sys.platform == "win32":
@@ -313,6 +313,53 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
             logger.info(err)
         return insertion
 
+    @staticmethod
+    def validate_type(s_type, value):  # pylint: disable=R0911
+        """Get the type of the observable.
+
+        :param value: observable value
+        :type value: str
+        :return: type of the observable
+        :rtype: str
+        """
+        if s_type == "ipv4":  # pylint: disable=R1705
+            return bool(re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", value))
+        elif s_type == "ipv6":
+            return bool(
+                re.match(
+                    r"^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$",  # pylint: disable=C0301
+                    value,
+                )
+            )
+        elif s_type == "email":
+            return bool(re.match(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+", value))
+        elif s_type == "uri":
+            return bool(re.match(r"[^\:]+\:\/\/[\S]+", value))
+        elif s_type == "domain":
+            return bool(
+                re.match(
+                    r"^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$",
+                    value,
+                )
+            )
+        elif s_type == "hash-md5":
+            return bool(re.match(r"^[a-f0-9A-F]{32}$", value))
+        elif s_type == "hash-sha256":
+            return bool(re.match(r"^[a-f0-9A-F]{64}$", value))
+        elif s_type == "hash-sha1":
+            return bool(re.match(r"\b[0-9a-f]{5,40}\b", value))
+        elif s_type == "hash-sha512":
+            return bool(re.match(r"^\w{128}$", value))
+        elif s_type == "port":
+            return bool(
+                re.match(
+                    r"^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$",
+                    value,
+                )
+            )
+        else:
+            return False
+
     def handle(self, in_string):  # pylint: disable=R0915,R0201
         """Handle request made to the endpoint services/create_sighting.
 
@@ -338,6 +385,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         sighting = SIGHTING_SCHEMA
         time = datetime.datetime.utcnow()
         api_key = payload.get(CREDS)
+
         if not api_key:
             return Send.create_response(401, CREDS_NOT_FOUND)
         proxy_pass = payload.get("proxy_pass") if payload.get("proxy_pass") else ""
@@ -357,6 +405,10 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         meta_data["meta_entity_url_eiq"] = payload["meta_entity_url_eiq"]
 
         sighting[DATA_STR][DATA_STR][VALUE] = payload[SIGHTING_VALUE]
+        if not Send.validate_type(payload[SIGHTING_TYPE], payload[SIGHTING_VALUE]):
+            return Send.create_response(
+                501, "Sighting value does not match with selected sighting type."
+            )
         sighting[DATA_STR][DATA_STR][DESCRIPTION] = payload[SIGHTING_DESC]
         sighting[DATA_STR][DATA_STR][TIMESTAMP_STR] = datetime.datetime.strftime(
             time, TIME_FORMAT
