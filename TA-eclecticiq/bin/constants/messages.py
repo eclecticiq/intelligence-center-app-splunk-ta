@@ -262,3 +262,11 @@ MIN_AND_MAX_INTERVAL = "Interval must be between 60s and 90 days."
 INTERVAL_MUST_BE_BETWEEN_MIN_AND_MAX_INTERVAL = (
     "Interval must be between 60s and 7776000s"
 )
+
+UNIQUE_VALUES_FOR_OUTGOING_FEEDS_ALLOWED = (
+    "Only unique values for outgoing-feeds are allowed."
+)
+
+MAXIMUM_FIVE_OUTGOING_FEEDS = "Maximum 5 outgoing-feeds allowed."
+START_DATE_INCORRECT = "Start date is incorrect."
+FUTURE_DATE_IS_NOT_ACCEPTABLE = "Future date is not acceptable."
