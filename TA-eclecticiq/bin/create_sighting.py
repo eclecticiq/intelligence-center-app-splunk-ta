@@ -1,6 +1,8 @@
 """Create Sighting Workflow Action."""
 import datetime
+import hashlib
 import json
+import logging
 import os
 import sys
 import re
@@ -400,7 +402,12 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         meta_data["field"] = payload["field"]
         meta_data["src"] = payload["src"]
         meta_data["dest"] = payload["dest"]
-        meta_data["event_hash"] = payload["event_hash"]
+        meta_data["event_hash"] = (
+            hashlib.sha512(str(payload["_raw"]).encode("utf-8")).hexdigest()
+            if payload.get("_raw")
+            else payload.get("event_hash")
+        )
+
         meta_data["feed_id_eiq"] = payload["feed_id_eiq"]
         meta_data["meta_entity_url_eiq"] = payload["meta_entity_url_eiq"]
 
@@ -434,7 +441,8 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
                 "post", url + "/entities", headers, settingsconf[PROXY], sighting
             )
         except Exception as err:
-            return Send.create_response(500, err)
+            logger.error(err)
+            return Send.create_response(500, str(err))
         if not (str(response.status_code)).startswith("2"):
             logger.info(REQUEST_FAILED)
             return Send.create_response(response.status_code, COULD_NOT_CREATE_SIGHTING)
