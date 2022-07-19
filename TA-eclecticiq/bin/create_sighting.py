@@ -7,7 +7,7 @@ import os
 import sys
 import re
 import traceback
-
+import logging
 import requests
 from splunk.clilib import cli_common as cli
 from splunk.persistconn.application import PersistentServerConnectionApplication
@@ -286,6 +286,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         data["type_eiq"] = sighting[DATA_STR][DATA_STR][SECURITY_CONTROL][TYPE]
         data["value_eiq"] = sighting[DATA_STR][DATA_STR][VALUE]
         data["value_url_eiq"] = ""
+        data["confidence_eiq"] = sighting[DATA_STR][DATA_STR]["confidence"]
         return data
 
     @staticmethod

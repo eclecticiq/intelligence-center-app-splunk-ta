@@ -17,8 +17,9 @@ fields = [
         required=True,
         encrypted=False,
         default="3600",
-        validator=validator.Pattern(
-            regex=r"""^\-[1-9]\d*$|^\d*$""",
+        validator=validator.Number(
+            min_val=1, 
+            max_val=7776000, 
         ),
     ),
     field.RestField(
@@ -26,9 +27,9 @@ fields = [
         required=True,
         encrypted=False,
         default="90",
-        validator=validator.String(
-            min_len=0,
-            max_len=8192,
+        validator=validator.Number(
+            min_val=1, 
+            max_val=90, 
         ),
     ),
     field.RestField("disabled", required=False, validator=None),
