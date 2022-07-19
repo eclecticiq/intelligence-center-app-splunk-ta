@@ -99,7 +99,7 @@ require([
     const sighting_value = $('#sighting_value').val();
     const sighting_desc = $('#sighting_desc').val();
     const sighting_title = $('#sighting_title').val();
-    const sighting_tags = $('#sighting_title').val();
+    const sighting_tags = $('#sighting_tags').val();
     // taking value from the drop down
     var sighting_type_obj = document.getElementById("sighting_type");
     var sighting_type = sighting_type_obj.options[sighting_type_obj.selectedIndex].text;
