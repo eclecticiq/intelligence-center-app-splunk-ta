@@ -6,10 +6,9 @@ import os
 import sys
 import json
 import logging
-import logging.handlers
 import requests
 import traceback
-import splunk
+import hashlib
 
 (path, _) = os.path.split(os.path.realpath(__file__))
 sys.path.insert(0, path)
@@ -19,25 +18,11 @@ from constants.messages import (  # pylint: disable=C0413
     API_ERROR,  # pylint: disable=C0413
     EVENTS_RESPONSE_ERROR_CODE,  # pylint: disable=C0413
 )  # pylint: disable=C0413
+
+from validator.logger_manager import setup_logging  # pylint: disable=C0413
 import splunklib.client as client  # pylint: disable=C0413
 
-logger = logging.getLogger("splunk.eiq")
-SPLUNK_HOME = os.environ["SPLUNK_HOME"]
-
-LOGGING_DEFAULT_CONFIG_FILE = os.path.join(SPLUNK_HOME, "etc", "log.cfg")
-LOGGING_LOCAL_CONFIG_FILE = os.path.join(SPLUNK_HOME, "etc", "log-local.cfg")
-LOGGING_STANZA_NAME = "python"
-LOGGING_FILE_NAME = "ta_eclecticiq_create_sighting.log"
-BASE_LOG_PATH = os.path.join("var", "log", "splunk")
-LOGGING_FORMAT = "%(asctime)s %(levelname)-s\t%(module)s:%(lineno)d - %(message)s"
-splunk_log_handler = logging.handlers.RotatingFileHandler(
-    os.path.join(SPLUNK_HOME, BASE_LOG_PATH, LOGGING_FILE_NAME), mode="a"
-)
-splunk_log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
-logger.addHandler(splunk_log_handler)
-splunk.setupSplunkLogger(
-    logger, LOGGING_DEFAULT_CONFIG_FILE, LOGGING_LOCAL_CONFIG_FILE, LOGGING_STANZA_NAME
-)
+logger = setup_logging("ta_eclecticiq_create_sighting", log_level=logging.DEBUG)
 INPUT_NAME = "create_sighting_alert_action"
 current_dir = os.path.dirname(os.path.abspath(__file__))
 SUPPORTED_TYPES = [
@@ -188,7 +173,11 @@ def format_data(configuration, result):
     )
     record["src"] = result.get("src") if result.get("src") else ""
     record["dest"] = result.get("dest") if result.get("dest") else ""
-    record["event_hash"] = result.get("event_hash") if result.get("event_hash") else ""
+    record["event_hash"] = (
+        hashlib.sha512(result["_raw"])
+        if result.get("_raw")
+        else result.get("event_hash")
+    )
     record["feed_id_eiq"] = (
         result.get("feed_id_eiq") if result.get("feed_id_eiq") else ""
     )
