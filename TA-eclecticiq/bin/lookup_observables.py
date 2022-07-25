@@ -33,7 +33,7 @@ from utils.formatters import format_proxy_uri  # pylint: disable=C0413
 
 from validator.logger_manager import setup_logging  # pylint: disable=C0413
 
-logger = setup_logging("ta_eclecticiq_create_sighting", log_level=logging.DEBUG)
+logger = setup_logging("ta_eclecticiq_lookup_observables", log_level=logging.DEBUG)
 
 INPUT_NAME = "lookup_observables"
 

@@ -524,10 +524,11 @@
                         {
                             "field": "observable_time_to_live",
                             "label": "Observable time to live",
-                            "help": "",
+                            "help": "Observable time to live in days.",
                             "required": true,
                             "type": "text",
                             "defaultValue": "90",
+                            
                             "validators": [
                                 {
                                     "type": "string",

@@ -165,8 +165,9 @@ class ValidateInputs(Validator):  # type: ignore
             return True
         return False
 
-    def validate(self, value, data):  # pylint: disable=W0613, R0911
-        """Check if the url and api token provided by user is valid or not.
+    def validate(self, value, data):  # pylint: disable=W0613,R0911
+        """
+        Check if the url and api token provided by user is valid or not.
 
         :param value: value given in the Name field of configuration page/account.
         (Not required but only keeping as this method will be called with it by rest module.)
