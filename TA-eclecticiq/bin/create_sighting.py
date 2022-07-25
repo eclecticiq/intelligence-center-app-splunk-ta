@@ -7,7 +7,6 @@ import os
 import sys
 import re
 import traceback
-import logging
 import requests
 from splunk.clilib import cli_common as cli
 from splunk.persistconn.application import PersistentServerConnectionApplication
@@ -280,7 +279,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         data["entity_title_eiq"] = sighting[DATA_STR][DATA_STR][TITLE]
         data["meta_entity_url_eiq"] = meta["meta_entity_url_eiq"]
         data["meta_tags_eiq"] = sighting[DATA_STR][META][TAGS]
-        data["sighting"] = ""
+        data["sighting"] = "1"
         data["source_name_eiq"] = ""
         data["timestamp_eiq"] = sighting[DATA_STR][DATA_STR][TIMESTAMP_STR]
         data["type_eiq"] = sighting[DATA_STR][DATA_STR][SECURITY_CONTROL][TYPE]
