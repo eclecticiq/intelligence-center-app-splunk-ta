@@ -297,7 +297,9 @@ class EIQApi:
         entity_record[META_ESTIMATED_THREAT_END_TIME] = item[META][
             ESTIMATED_THREAT_END_TIME
         ]
-        entity_record[META_TAGS] = item[META][TAGS]
+        meta_tags = ",".join(item[META][TAGS])
+        entity_record[META_TAGS] = meta_tags
+        entity_record["last_updated_at"] = item["last_updated_at"]
         entity_record[META_TAXONOMIES] = item[META][TAXONOMIES]
         entity_record[META_SOURCE_RELIABILITY] = item[META][SOURCE_RELIABILITY]
 
@@ -467,6 +469,7 @@ class EIQApi:
 
             entity_id = data[ID]
             entity_data = EIQApi.formatted_data_to_load_for_entities(data, feed_id)
+
             # check whether data already present , if present then update with latest
             response = splunk_api.get_record_in_collection(
                 ENTITIES_STORE_COLLECTION_NAME, entity_id

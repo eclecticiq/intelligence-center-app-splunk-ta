@@ -37,7 +37,7 @@ SIGHTING_SCHEMA = {
             "security_control": {
                 "type": "information-source",
                 "identity": {
-                    "name": "EclecticIQ Platform App for Qradar",
+                    "name": "EclecticIQ Platform Add-on for Splunk",
                     "type": "identity",
                 },
                 "time": {
