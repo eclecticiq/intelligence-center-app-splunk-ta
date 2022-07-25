@@ -1,5 +1,5 @@
 import ta_eclecticiq_declare
-
+from validator.validate_deletion import ValidateDeletion
 from splunktaucclib.rest_handler.endpoint import (
     field,
     validator,
@@ -17,20 +17,14 @@ fields = [
         required=True,
         encrypted=False,
         default="3600",
-        validator=validator.Number(
-            min_val=1, 
-            max_val=7776000, 
-        ),
+        validator=None,
     ),
     field.RestField(
         "observable_time_to_live",
         required=True,
         encrypted=False,
         default="90",
-        validator=validator.Number(
-            min_val=1, 
-            max_val=90, 
-        ),
+        validator=ValidateDeletion(),
     ),
     field.RestField("disabled", required=False, validator=None),
 ]
