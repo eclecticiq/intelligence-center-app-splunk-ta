@@ -37,7 +37,9 @@ class EIQDeleterApi:
         :rtype: boolean
 
         """
-        observable_time_to_live = get_formatted_date(int(observable_time_to_live))
+        observable_time_to_live = get_formatted_date(
+            int(float(observable_time_to_live))
+        )
         self.helper.log_info(OBSERVABLE_TIME_TO_LIVE.format(observable_time_to_live))
         splunk_api = SplunkApi(self.helper, self.event_writer)
         response = splunk_api.get_all_records_in_collection(
