@@ -450,6 +450,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         hostname = url.split("/")
         hostname = "/".join(hostname[:-2])
         message = SIGHTING_CREATED.format(hostname, content[DATA_STR]["id"])
+        logger.info(message)
         try:
             storage_data = Send.format_data(sighting, meta_data)
             is_stored = Send.store_sighting(storage_data, session_key)
