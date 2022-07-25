@@ -81,6 +81,7 @@ class ValidateInputs(Validator):  # type: ignore
         :rtype: boolean
         """
         feed_ids = outgoing_feed_ids.split(",")
+        feed_ids = list(filter(None, feed_ids))
         if len(feed_ids) > len(set(map(int, feed_ids))):
             logger.info(UNIQUE_VALUES_FOR_OUTGOING_FEEDS_ALLOWED)
             return False
