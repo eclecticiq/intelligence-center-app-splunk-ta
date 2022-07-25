@@ -74,8 +74,6 @@ class ValidateDeletion(Validator):  # type: ignore
         :return: True if interval lies between min and max interval else False
         :rtype: boolean
         """
-        logger.info(interval)
-        logger.info(type(interval))
         try:
             int(interval)
         except ValueError:
@@ -94,7 +92,6 @@ class ValidateDeletion(Validator):  # type: ignore
         :type proxy: dict
         :return True or False
         """
-        logger.info(data)
         observable_time_to_live = data["observable_time_to_live"]
         deletion_interval = data["interval"]
         is_numeric_interval = ValidateDeletion.validate_integer_only(deletion_interval)
