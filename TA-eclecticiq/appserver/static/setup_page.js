@@ -22,6 +22,7 @@ require([
     var sourcetype = tokens.get("sourcetype")
     var time = tokens.get("event_time")
     var field = tokens.get("field_name")
+    var event_hash = tokens.get("raw") 
     var http = new splunkjs.SplunkWebHttp();
     
     // console.log("sessionkey = "+splunkjs.Context)
@@ -169,6 +170,8 @@ require([
     if(sourcetype!=undefined){data["sourcetype"] = sourcetype}else{data["sourcetype"]=""}
     if(time!=undefined){data["time"] = time}else{data["time"]=""}
     if(field!=undefined){data["field"] = field}else{data["field"]=""}
+    if(event_hash!=undefined){data["_raw"] = event_hash}else{data["_raw"]=""}
+
     
     try
     { 
