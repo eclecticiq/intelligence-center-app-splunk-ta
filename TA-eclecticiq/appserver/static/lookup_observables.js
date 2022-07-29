@@ -22,6 +22,7 @@ require([
     var sourcetype = tokens.get("sourcetype")
     var event_time = tokens.get("event_time")
     var field_name = tokens.get("field_name")
+    $("#msg").css('color', 'blue');
     $("#loading").text("Loading...")
 
     var http = new splunk_js_sdk.SplunkWebHttp();
@@ -127,8 +128,14 @@ require([
 
     }
     response.then(function (result) {
+        console.log("Response Received.")
         $("#loading").text("")
+        if (result.data.length>1)
+        {
         $("#mytable").append(createTable(result['data']))
+     }
+     else { $("#msg").css('color', 'black');
+     $("#loading").text("No data found!")}
     });
 
     function createTable(data) {
