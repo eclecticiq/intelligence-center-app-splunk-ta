@@ -98,17 +98,17 @@ def collect_events(helper, event_writer):
         ADDITIONAL_PARAMTERS_CONFIG, ADDITIONAL_PARAMTERS_STANZA
     )
     config_details[ADDITIONAL_PARAM_PAGE_SIZE] = (
-        int(configs.get(ADDITIONAL_PARAM_PAGE_SIZE))
+        int(float(configs.get(ADDITIONAL_PARAM_PAGE_SIZE)))
         if configs.get(ADDITIONAL_PARAM_PAGE_SIZE)
         else DEFAULT_PAGE_SIZE
     )
     config_details[ADDITIONAL_PARAM_NUMBER_OF_RETRIES] = (
-        int(configs.get(ADDITIONAL_PARAM_NUMBER_OF_RETRIES))
+        int(float(configs.get(ADDITIONAL_PARAM_NUMBER_OF_RETRIES)))
         if configs.get(ADDITIONAL_PARAM_NUMBER_OF_RETRIES)
         else DEFAULT_NUMBER_OF_RETRIES
     )
     config_details[ADDITIONAL_PARAM_SLEEP_TIME] = (
-        int(configs.get(ADDITIONAL_PARAM_SLEEP_TIME))
+        int(float(configs.get(ADDITIONAL_PARAM_SLEEP_TIME)))
         if configs.get(ADDITIONAL_PARAM_SLEEP_TIME)
         else DEFAULT_SLEEP_TIME
     )

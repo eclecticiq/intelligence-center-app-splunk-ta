@@ -162,6 +162,9 @@ def format_data(configuration, result):
         else ""
     )
     record["index"] = result.get("index") if result.get("index") else ""
+    record["observable_id"] = (
+        result.get("observable_id") if result.get("observable_id") else ""
+    )
     record["host"] = result.get("host") if result.get("host") else ""
     record["source"] = result.get("source") if result.get("source") else ""
     record["sourcetype"] = result.get("sourcetype") if result.get("sourcetype") else ""

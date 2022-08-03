@@ -25,9 +25,9 @@ from constants.general import (
 from constants.messages import (
     BACKFILL_TIME_OLDER,
     FUTURE_DATE_IS_NOT_ACCEPTABLE,
+    INTERVAL_IS_BETWEEN_MIN_AND_MAX_INTERVAL,
     INTERVAL_MUST_BE_BETWEEN_MIN_AND_MAX_INTERVAL,
     MAXIMUM_FIVE_OUTGOING_FEEDS,
-    MIN_AND_MAX_INTERVAL,
     SELECT_ATLEAST_ONE_OBSERVABLE_TYPE,
     SELECT_ATLEAST_ONE_OBSERVABLE_TYPE_TO_BE_INGESTED,
     START_DATE_INCORRECT,
@@ -82,7 +82,7 @@ class ValidateInputs(Validator):  # type: ignore
         """
         feed_ids = outgoing_feed_ids.split(",")
         feed_ids = list(filter(None, feed_ids))
-        if len(feed_ids) > len(set(map(int, feed_ids))):
+        if len(feed_ids) > len(list(set(feed_ids))):
             logger.info(UNIQUE_VALUES_FOR_OUTGOING_FEEDS_ALLOWED)
             return False
         return True
@@ -162,7 +162,7 @@ class ValidateInputs(Validator):  # type: ignore
         :rtype: boolean
         """
         if MIN_INTERVAL <= int(interval) <= MAX_INTERVAL:
-            logger.info(MIN_AND_MAX_INTERVAL)
+            logger.info(INTERVAL_IS_BETWEEN_MIN_AND_MAX_INTERVAL)
             return True
         return False
 

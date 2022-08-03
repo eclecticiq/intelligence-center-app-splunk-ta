@@ -46,7 +46,7 @@ class ModInputeiq_observables(modinput_wrapper.base_modinput.BaseModInput):
                                          required_on_create=True,
                                          required_on_edit=False))
         scheme.add_argument(smi.Argument("outgoing_feeds", title="Outgoing feeds",
-                                         description="Outgoing feeds to be selected for observable collection",
+                                         description="Comma(,) separated Outgoing feeds ids for observable collection. Max outgoing feed ids allowed are 5.",
                                          required_on_create=True,
                                          required_on_edit=False))
         scheme.add_argument(smi.Argument("domain", title="Domain",
