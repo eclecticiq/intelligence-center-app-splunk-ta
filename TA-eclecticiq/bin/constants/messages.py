@@ -259,6 +259,7 @@ SELECT_ATLEAST_ONE_OBSERVABLE_TYPE_TO_BE_INGESTED = (
 )
 
 MIN_AND_MAX_INTERVAL = "Interval must be between 60s and 90 days."
+INTERVAL_IS_BETWEEN_MIN_AND_MAX_INTERVAL = "Interval is between 60s and 7776000s"
 INTERVAL_MUST_BE_BETWEEN_MIN_AND_MAX_INTERVAL = (
     "Interval must be between 60s and 7776000s"
 )

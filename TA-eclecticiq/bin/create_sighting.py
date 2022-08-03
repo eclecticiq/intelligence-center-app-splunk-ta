@@ -271,6 +271,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         data["dest"] = meta["dest"]
         data["event_hash"] = meta["event_hash"]
         data["event_index"] = meta["index"]
+        data["observable_id"] = meta["observable_id"]
         data["event_host"] = meta["host"]
         data["event_sourcetype"] = meta["sourcetype"]
         data["event_time"] = meta["time"]
@@ -286,6 +287,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         data["value_eiq"] = sighting[DATA_STR][DATA_STR][VALUE]
         data["value_url_eiq"] = ""
         data["confidence_eiq"] = sighting[DATA_STR][DATA_STR]["confidence"]
+
         return data
 
     @staticmethod
@@ -396,6 +398,9 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         meta_data = {}
         meta_data["host"] = payload["host"]
         meta_data["index"] = payload["index"]
+        meta_data["observable_id"] = (
+            payload.get("observable_id") if payload.get("observable_id") else ""
+        )
         meta_data["source"] = payload["source"]
         meta_data["sourcetype"] = payload["sourcetype"]
         meta_data["time"] = payload["time"]
