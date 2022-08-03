@@ -1,6 +1,6 @@
 [eiq_observables://<name>]
 global_account = Name of global account created in Configuration Screen.
-outgoing_feeds = Outgoing feeds to be selected for observable collection
+outgoing_feeds = Comma(,) separated Outgoing feeds ids for observable collection. Max outgoing feed ids allowed are 5.
 start_date = Date to fetch observables
 domain = Observable types to ingest
 ip = Observable types to ingest

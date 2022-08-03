@@ -416,7 +416,7 @@
                         {
                             "field": "outgoing_feeds",
                             "label": "Outgoing feeds",
-                            "help": "Outgoing feeds to be selected for observable collection",
+                            "help": "Comma(,) separated Outgoing feeds ids for observable collection. Max outgoing feed ids allowed are 5.",
                             "required": true,
                             "type": "text",
                             "validators": [
@@ -434,7 +434,7 @@
                         {
                             "field": "start_date",
                             "label": "Start date",
-                            "help": "Date for observable collection to be entered in yyyy-mm-ddThh:mm:ss.SSSS format",
+                            "help": "Date for observable collection to be entered in yyyy-mm-ddThh:mm:ss.SSSSSS format",
                             "required": true,
                             "type": "text",
                             "options": {
