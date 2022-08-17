@@ -51,7 +51,7 @@ To install the splunk enterprise. Follow this manual Splunk Installation Manual.
 ##### Step 3. Enter the app name to search for . . .
 ##### Step 4. Check the prerequisites and details.
 ##### Step 5. Click on Install.
-!(/docs/screenshots/1.png)
+![Installation](/docs/screenshots/1.png)
 
 ### 1.2.3 Installation for both APP & Addon(From File)
 
