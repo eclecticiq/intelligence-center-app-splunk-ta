@@ -228,7 +228,7 @@ class ValidateInputs(Validator):  # type: ignore
         )
         if not outgoing_feed_integer_only:
             logger.info("Only numerical values allowed for outgoing feeds!")
-            self.put_msg("Only numerical values allowed for outging feeds!")
+            self.put_msg("Only numerical values allowed for outgoing feeds!")
             return False
         is_unique_values = ValidateInputs.validate_unique_values(data["outgoing_feeds"])
         if not is_unique_values:
