@@ -1,4 +1,5 @@
-# EclecticIQ Intelligence Center App for QRadar
+# EclecticIQ Splunk Addon & App User Manual
+
 
 # 1. Introduction
 EclecticIQ Intelligence Platform
@@ -39,8 +40,6 @@ Below mentioned modules will be covered as part of this document.
 ## 1.2 Installation
 
 ### 1.2.1 Installation of Splunk Enterprise
-
-#### Step 1. Configure the outgoing feed(s) you wish to use with the QRadar App
 
 To install the splunk enterprise. Follow this manual Splunk Installation Manual.(https://docs.splunk.com/index.php?title=Documentation:Splunk:Installation:Beforeyouinstall:8.1.0&action=pdfbook&version=8.2.2&product=Splunk).
 
