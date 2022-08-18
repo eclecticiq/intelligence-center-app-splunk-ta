@@ -277,12 +277,12 @@ In Home Dashboard it shows information about collections of observables and Aler
 * Shows the Top detected Observables by types, Taxonomy/Tag.
 * Shows Top detected observables and metadata by sourcetype.
 
- !(/docs/screenshots/app_images/1.png)
- !(/docs/screenshots/app_images/2.png)
-  !(/docs/screenshots/app_images/3.png)
+![Image](/docs/screenshots/app_images/1.png)
+![Image](/docs/screenshots/app_images/2.png)
+![Image](/docs/screenshots/app_images/3.png)
 * Click on table row of top detected observable and metadata by source it will navigate to All Matches Dashboard and show the information.
 
- !(/docs/screenshots/app_images/4.png)
+![Image](/docs/screenshots/app_images/4.png)
 
 
 ### 2. Matches by IP
@@ -290,15 +290,15 @@ In Home Dashboard it shows information about collections of observables and Aler
 2. Navigate to apps > EclecticIQ App for splunk.
 3. Go to Dashboard dropdown.
 4. Select Matched IP.
- !(/docs/screenshots/app_images/5.png)
+![Image](/docs/screenshots/app_images/5.png)
 
 In Matches by IP Dashboard it shows information about Alerts by observable type IP.
 * Shows the details of Alerts by severity of ipv4 and ipv6.
 * Shows the details of top detected connections by Source observable and Destination observable.
- !(/docs/screenshots/app_images/6.png)
-  !(/docs/screenshots/app_images/7.png)
+![Image](/docs/screenshots/app_images/6.png)
+![Image](/docs/screenshots/app_images/7.png)
 * Click on any row in the table and it will show more additional information about that row.
- !(/docs/screenshots/app_images/8.png)
+![Image](/docs/screenshots/app_images/8.png)
 
 
 
@@ -307,31 +307,31 @@ In Matches by Domain and URL Dashboard it shows information about Alerts by obse
 * Shows the information of severity of Domain and URL.
 * Shows the information of URL observable and Domain observable.
 
- !(/docs/screenshots/app_images/9.png)
- !(/docs/screenshots/app_images/10.png)
+![Image](/docs/screenshots/app_images/9.png)
+![Image](/docs/screenshots/app_images/10.png)
 * Clicking on any row in the table. It will show the additional information of that row.
- !(/docs/screenshots/app_images/11.png)
-  !(/docs/screenshots/app_images/12.png)
+![Image](/docs/screenshots/app_images/11.png)
+![Image](/docs/screenshots/app_images/12.png)
 
 
 ### 4. Matches by File Hashes
 In Matches by File Hashes Dashboard it shows information about Alerts by observable type File hashes.
 * Shows the information about the severity of alerts.
 * Shows the information of Alerts by Hashes.
-!(/docs/screenshots/app_images/13.png)
-!(/docs/screenshots/app_images/14.png)
+![Image](/docs/screenshots/app_images/13.png)
+![Image](/docs/screenshots/app_images/14.png)
 * Clicking on any row in the table. It will show more detailed information about that row.
- !(/docs/screenshots/app_images/15.png)
+![Image](/docs/screenshots/app_images/15.png)
 
 ### 5. Matches by Email
 In Matches by Email Dashboard it shows information about Alerts by observable type Email.
 * Shows the information of the Email alerts by severity.
 * Shows the information of the alerts by sender observable and receiver observable.
- !(/docs/screenshots/app_images/16.png)
-  !(/docs/screenshots/app_images/17.png)
+![Image](/docs/screenshots/app_images/16.png)
+![Image](/docs/screenshots/app_images/17.png)
 
 * Clicking on any row in the more info table. It will show more detailed information about that particular clicked value.
- !(/docs/screenshots/app_images/18.png)
+![Image](/docs/screenshots/app_images/18.png)
 
 
 ### 6. All Matches
@@ -339,11 +339,11 @@ In Matches by Email Dashboard it shows information about Alerts by observable ty
 In All Matches Dashboard it shows information about Alerts by all types of observables(IP,Domain,URL,File Hash and Email).
 * Shows the information of the severity of all observable types.
 * Shows the information of top detected connections by source observables.
-!(/docs/screenshots/app_images/19.png)
-!(/docs/screenshots/app_images/20.png)
+![Image](/docs/screenshots/app_images/19.png)
+![Image](/docs/screenshots/app_images/20.png)
 
 * Clicking on any row in the table. It will show more detailed information about that cli
- !(/docs/screenshots/app_images/21.png)
+![Image](/docs/screenshots/app_images/21.png)
 
 ### 7.Observables DB Info
 
@@ -355,17 +355,17 @@ In Observables DB Info Dashboard shows the information of observables stored in 
 * Shows the information of observables distribution.
 * Shows downloaded observables by type.
 * Shows the details of count of observables by Type,Tags and Confidence.
- !(/docs/screenshots/app_images/22.png)
-  !(/docs/screenshots/app_images/23.png)
-   !(/docs/screenshots/app_images/24.png)
+![Image](/docs/screenshots/app_images/22.png)
+![Image](/docs/screenshots/app_images/23.png)
+![Image](/docs/screenshots/app_images/24.png)
 * Clicking on any row of count of observable type in the table will open in another window and show more detailed information of that particular row.
- !(/docs/screenshots/app_images/25.png)
+![Image](/docs/screenshots/app_images/25.png)
 
 * Clicking on any row of count of observables by tag in the table will open in another window and show more detailed information of that particular row
- !(/docs/screenshots/app_images/26.png)
+![Image](/docs/screenshots/app_images/26.png)
 
 * Clicking on any row of count of observables by Confidence in the table will open in another window and show more detailed information of that particular row.
- !(/docs/screenshots/app_images/27.png)
+![Image](/docs/screenshots/app_images/27.png)
 
 
 
@@ -373,7 +373,7 @@ In Observables DB Info Dashboard shows the information of observables stored in 
 
 In Application logs Dashboard shows the information of the log levels,sourcetype and message in the table.
 
- !(/docs/screenshots/app_images/28.png)
+![Image](/docs/screenshots/app_images/28.png)
 
 ## Saved Searches
 App will provide the saved searches which will be helpful for customers to map the data from other log sources with the threat intelligence data collected by the Addon in KV store. The app will be using the saved searches already available in the app available on Splunkbase.
@@ -385,9 +385,9 @@ To match the data from indexes follow below steps
 * Click on EclecticIQ alert.
 * Adjust the query to match the fields from index data to IOC data
     *  For example if the data is having field local_address which contains the source IP address of attack then in query add the field append it to the list of fields to be matched as given the the screenshot below.
-     !(/docs/screenshots/app_images/29.png)
+     ![Image](/docs/screenshots/app_images/29.png)
     *  Then add it to the evaluation field which the field is mapped to. For example: if the local_address contains the ip address of the attacker then add it to eval of src field if it is containing destination ip add it to eval of dest field. Example given in below screenshot.
-     !(/docs/screenshots/app_images/30.png)
+     ![Image](/docs/screenshots/app_images/30.png)
 * Adjust the schedule of the query.
 * Click on Save.
 * Click on Edit > Enable
@@ -402,3 +402,4 @@ To match the data from datamodel follow below steps
 * Adjust the schedule of the query.
 * Click on Save.
 * Click on Edit > Enable
+![Image](/docs/screenshots/app_images/31.png)
