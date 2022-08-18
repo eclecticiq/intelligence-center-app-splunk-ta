@@ -68,7 +68,9 @@ To install the splunk enterprise. Follow this manual Splunk Installation Manual.
 ![Installation](/docs/screenshots/5.png)
 
 After installation, we can see the Addon and App in Apps dropdown list
+
 ![Installation](/docs/screenshots/6.png)
+
 # 2. Splunk Addon
 * The EIQ app for Splunk will collect the observables data from the EIQ platform and store it in KV store lookups.
 * Users will be provided an option for sighting creation by clicking on the events.
@@ -81,7 +83,7 @@ After installation, we can see the Addon and App in Apps dropdown list
 Configuration :
 There are 4 configurations for the splunk Addon. Each one of the configurations are explained below.
 ### 1. Account
-    After installation of EclecticIQ Intelligence Centre Addon to set up the account follow the below steps.
+After installation of EclecticIQ Intelligence Centre Addon to set up the account follow the below steps.
 ##### 1. Navigate to apps and select EIQ Intelligence centre Addon.
 ##### 2. Click on the Configuration tab.
 ##### 3. In the Accounts Sub tab click on Add.
@@ -93,7 +95,7 @@ Account should be created successfully
 ![Account](/docs/screenshots/8.png)
 
 ### 2. Proxy
-    For setting up the proxy for data collection of API data, follow the below-mentioned steps in EclecticIQ Intelligence centre Add-on.
+For setting up the proxy for data collection of API data, follow the below-mentioned steps in EclecticIQ Intelligence centre Add-on.
 ##### 1.Navigate to apps and select EIQ Intelligence centre Addon.
 ##### 2. Click on the Configuration tab.
 ##### 3. Click on the Proxy tab under the configuration tab.
@@ -103,7 +105,7 @@ Account should be created successfully
 ![Image](/docs/screenshots/9.png)
 
 ### 3. Logging
-    For setting up the logging for data collection of API data, follow the below-mentioned steps in EclecticIQ Intelligence centre Add-on.
+For setting up the logging for data collection of API data, follow the below-mentioned steps in EclecticIQ Intelligence centre Add-on.
 ##### 1.Navigate to apps and select EIQ Intelligence centre Addon.
 ##### 2. Click on the Configuration tab.
 ##### 3. Click on the Logging tab under the configuration tab.
@@ -113,7 +115,7 @@ Account should be created successfully
 ![Image](/docs/screenshots/10.png)
 
 ### 4. Additional Parameters
-    For setting up the Additional parameter for API calls and retry mechanism, follow below-mentioned steps in EclecticIQ Intelligence centre Add-on.
+For setting up the Additional parameter for API calls and retry mechanism, follow below-mentioned steps in EclecticIQ Intelligence centre Add-on.
 ##### 1.Navigate to apps and select EIQ Intelligence centre Addon.
 ##### 2. Click on the Configuration tab.
 ##### 3. Click on the Add-on Settings tab under the configuration tab..
