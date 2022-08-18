@@ -72,6 +72,25 @@ class ValidateInputs(Validator):  # type: ignore
         return True
 
     @staticmethod
+    def validate_outgoing_feed_integer_only(outgoing_feed_ids):
+        """Validate the interval is between 60s and 90 days.
+
+        :param date: interval
+        :type date: str
+        :return: True if interval lies between min and max interval else False
+        :rtype: boolean
+        """
+        try:
+            feed_ids = outgoing_feed_ids.split(",")
+            feed_ids = list(filter(None, feed_ids))
+            value = [int(value) for value in feed_ids]
+            logger.info(value)
+        except ValueError:
+            logger.error("Outgoing feed is not an integer value")
+            return False
+        return True
+
+    @staticmethod
     def validate_unique_values(outgoing_feed_ids):
         """Validate unique outgoing-feeds only.
 
@@ -199,11 +218,18 @@ class ValidateInputs(Validator):  # type: ignore
             data["outgoing_feeds"]
         )
         logger.info(is_valid_length)
+
         if not is_valid_length:
             logger.info(MAXIMUM_FIVE_OUTGOING_FEEDS)
             self.put_msg(MAXIMUM_FIVE_OUTGOING_FEEDS)
             return False
-
+        outgoing_feed_integer_only = ValidateInputs.validate_outgoing_feed_integer_only(
+            data["outgoing_feeds"]
+        )
+        if not outgoing_feed_integer_only:
+            logger.info("Only numerical values allowed for outgoing feeds!")
+            self.put_msg("Only numerical values allowed for outgoing feeds!")
+            return False
         is_unique_values = ValidateInputs.validate_unique_values(data["outgoing_feeds"])
         if not is_unique_values:
             self.put_msg(UNIQUE_VALUES_FOR_OUTGOING_FEEDS_ALLOWED)
