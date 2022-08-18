@@ -140,12 +140,16 @@ After saving the configurations.
 5.Click on Add.
 
 ![Image](/docs/screenshots/12.png)
+
 6.Successfully creating input message will be displayed.
+
 ![Image](/docs/screenshots/13.png)
 7.Created input will be displayed in the Inputs Screen.
+
 ![Image](/docs/screenshots/14.png)
 8.Go to Search Tab.Enter | inputlookup eiq_ioc_list.
 9.Verify the collection of observable data.
+
 ![Image](/docs/screenshots/15.png)
 
 The below image is the background job to fetch the observables from the EIQ
