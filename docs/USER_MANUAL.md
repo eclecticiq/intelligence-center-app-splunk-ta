@@ -57,17 +57,18 @@ To install the splunk enterprise. Follow this manual Splunk Installation Manual.
 
 ##### Step 1. Login to Splunk Enterprise.
 ##### Step 2. Navigate to manage apps and click.
-!(/docs/screenshots/2.png)
+![Installation](/docs/screenshots/2.png)
 ##### Step 3. Click on Install app from File.
-!(/docs/screenshots/3.png)
+![Installation](/docs/screenshots/3.png)
 ##### Step 4.Install App From File pop-up window will appear.
 ##### Step 5.Choose the file and click on checkbox.
 ##### Step 6.Click on Upload button.
-!(/docs/screenshots/4.png)
+![Installation](/docs/screenshots/4.png)
 ##### Step 7.Successfully installed message will be displayed.
-!(/docs/screenshots/5.png)
+![Installation](/docs/screenshots/5.png)
+
 After installation, we can see the Addon and App in Apps dropdown list
-!(/docs/screenshots/6.png)
+![Installation](/docs/screenshots/6.png)
 # 2. Splunk Addon
 * The EIQ app for Splunk will collect the observables data from the EIQ platform and store it in KV store lookups.
 * Users will be provided an option for sighting creation by clicking on the events.
@@ -86,10 +87,10 @@ There are 4 configurations for the splunk Addon. Each one of the configurations 
 ##### 3. In the Accounts Sub tab click on Add.
 ##### 4. Give a unique name to the configuration and add the URL (https://<hostname>/api/<version>) of the product & API key generated from the Product.
 ##### 5. Click on Add.
-!(/docs/screenshots/7.png)
+![Account](/docs/screenshots/7.png)
 
 Account should be created successfully
-!(/docs/screenshots/8.png)
+![Account](/docs/screenshots/8.png)
 
 ### 2. Proxy
     For setting up the proxy for data collection of API data, follow the below-mentioned steps in EclecticIQ Intelligence centre Add-on.
@@ -99,7 +100,7 @@ Account should be created successfully
 ##### 4. Fill in all the necessary details. (https://<hostname>/api/<version>) of the product & API key generated from the Product.
 ##### 5. Click on Save.
 
-!(/docs/screenshots/9.png)
+![Image](/docs/screenshots/9.png)
 
 ### 3. Logging
     For setting up the logging for data collection of API data, follow the below-mentioned steps in EclecticIQ Intelligence centre Add-on.
@@ -109,7 +110,7 @@ Account should be created successfully
 ##### 4. Select the Log level. Available log levels are Debug, Info, Warning, Error and Critical.
 ##### 5. Click on Save.
 
-!(/docs/screenshots/10.png)
+![Image](/docs/screenshots/10.png)
 
 ### 4. Additional Parameters
     For setting up the Additional parameter for API calls and retry mechanism, follow below-mentioned steps in EclecticIQ Intelligence centre Add-on.
@@ -120,7 +121,7 @@ Account should be created successfully
 ##### 5. Sleep time(Wait time in seconds between consecutive retries, default to 100)
 ##### 6. Page size(Data to fetch in a single rest API call.Default to 100)
 ##### 7. Click on Save.
-!(/docs/screenshots/11.png)
+![Image](/docs/screenshots/11.png)
 
 # 2. EIQ Observables Collection
 
@@ -138,18 +139,19 @@ After saving the configurations.
 
 5.Click on Add.
 
-!(/docs/screenshots/12.png)
+![Image](/docs/screenshots/12.png)
 6.Successfully creating input message will be displayed.
-!(/docs/screenshots/13.png)
+![Image](/docs/screenshots/13.png)
 7.Created input will be displayed in the Inputs Screen.
-!(/docs/screenshots/14.png)
+![Image](/docs/screenshots/14.png)
 8.Go to Search Tab.Enter | inputlookup eiq_ioc_list.
 9.Verify the collection of observable data.
-!(/docs/screenshots/15.png)
+![Image](/docs/screenshots/15.png)
 
 The below image is the background job to fetch the observables from the EIQ
 $SPLUNK_HOME/var/log/splunk/ta_eclecticiq_eiq_observables.log
-!(/docs/screenshots/16.png)
+
+![Image](/docs/screenshots/16.png)
 
 # 3. Deletion of observables
 1. Login to Splunk Enterprises.
@@ -161,15 +163,15 @@ $SPLUNK_HOME/var/log/splunk/ta_eclecticiq_eiq_observables.log
      * Unique Name: Unique name for data input
      * Interval: Time interval of input in seconds
      * Observable time to live: Observable time to live in days
- !(/docs/screenshots/17.png)
+![Image](/docs/screenshots/17.png)
 7. Click on Add button.
 8. Deletion of Observables record created successfully.
 9. Go to search tab and enter | inputlookup eiq_ioc_list.
 
 Before deletion of observable data in KV store
- !(/docs/screenshots/18.png)
+![Image](/docs/screenshots/18.png)
 10. After successfully deleting the data from KV store.
- !(/docs/screenshots/19.png)
+![Image](/docs/screenshots/19.png)
 
 # 4. Create Sighting(From event fields)
 1. Navigate to Search Tab.
@@ -185,13 +187,13 @@ Clicking on save will create sightings in the EIQ platform with provided details
     * Sighting tags delimited by a comma: Any tags to attach with sighting
     * Sighting type: Type of sighting. Possible values: ip, domain, url, email, hash,port
     * Sighting confidence: Confidence of sighting. Possible values: low, medium, high,unknown
- !(/docs/screenshots/20.png)
+![Image](/docs/screenshots/20.png)
 7. Click on Save button(successfully save the sighting).
 8. Go to Search tab and enter | inputlookup eiq_alerts_list.
 9. Verify the created sightings.
- !(/docs/screenshots/21.png)
+![Image](/docs/screenshots/21.png)
 10. Verify the sightings in EIQ application.
- !(/docs/screenshots/22.png)
+![Image](/docs/screenshots/22.png)
 
 # 5. Lookup Observable
 1. Navigate to Search Tab.
@@ -199,9 +201,9 @@ Clicking on save will create sightings in the EIQ platform with provided details
 3. Click on the event and expand.
 4. Click on the down arrow(right side) of the value(IP/URL/Domain/Hash/Email).
 5. Click on the EclecticIQ lookup observable.
- !(/docs/screenshots/23.png)
+![Image](/docs/screenshots/23.png)
 6. A pop-up window will appear.
- !(/docs/screenshots/24.png)
+![Image](/docs/screenshots/24.png)
 7. Click on Create Sighting button.
 8. A pop-up window will appear to ask for the details below.
 Clicking on save will create sightings in the EIQ platform with provided details.
@@ -211,38 +213,38 @@ Clicking on save will create sightings in the EIQ platform with provided details
     * Sighting tags delimited by a comma: Any tags to attach with sighting
     * Sighting type: Type of sighting. Possible values: ip, domain, url, email, hash,port
     * Sighting confidence: Confidence of sighting. Possible values: low, medium, high,unknown
- !(/docs/screenshots/25.png)
+![Image](/docs/screenshots/25.png)
 9. Sighting should be created successfully.
- !(/docs/screenshots/26.png)
+![Image](/docs/screenshots/26.png)
 
 10. Verify the created sightings.
- !(/docs/screenshots/27.png)
+![Image](/docs/screenshots/27.png)
 
 11. Verify the sightings in EIQ application.
- !(/docs/screenshots/28.png)
+![Image](/docs/screenshots/28.png)
 
 
 # 6. Create Sighting(Automatic Based on Saved Searches)
 1. Go to settings dropdown > click on Searches,reports and alerts.
 2. Searches, Reports and Alerts page displayed.
 
- !(/docs/screenshots/29.png)
+![Image](/docs/screenshots/29.png)
 
 3. Click on New Alert button(right side above).
 4. Create Alert pop-up page displayed.
 
- !(/docs/screenshots/30.png)
+![Image](/docs/screenshots/30.png)
 
 5. Provide the values for Fields (Title, Description,App,permissions).
 6. Enter the Search query for which the sighting should be created. Make sure the search is returning these fields(index, host, source, sourcetype, _time, src, dest,_raw). Optional fields are (event_hash, feed_id_eiq, meta_entity_url_eiq, observable_id, observable_value).
 7. Select Alert type and select scheduled options.
- !(/docs/screenshots/31.png)
+![Image](/docs/screenshots/31.png)
 
 8. Select Trigger conditions(Trigger alert and trigger).
- !(/docs/screenshots/32.png)
+![Image](/docs/screenshots/32.png)
 9. Click on Add actions dropdown under trigger actions.
 10. Select Create EclecticIQ Sighting.
- !(/docs/screenshots/33.png)
+![Image](/docs/screenshots/33.png)
 
 11. Fill all the fields available in create EclecticIQ sighting.
      * Sighting Title: Title of sighting
@@ -252,7 +254,7 @@ Clicking on save will create sightings in the EIQ platform with provided details
      * Observable Type: Possible values: ip, domain, url, email, hash,port
      * Observable Field: Name of the field from which contains observable value
      * Observable Confidence: Confidence of observable. Possible value: Low,Medium,High,Unknown
- !(/docs/screenshots/34.png)
+![Image](/docs/screenshots/34.png)
 
 11. Click on save.
 12. An Alert should be created.
