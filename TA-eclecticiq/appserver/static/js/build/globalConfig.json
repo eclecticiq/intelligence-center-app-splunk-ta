@@ -1,0 +1,553 @@
+{
+    "meta": {
+        "name": "TA-eclecticiq",
+        "displayName": "EclecticIQ",
+        "version": "1.0.0",
+        "restRoot": "TA_eclecticiq",
+        "schemaVersion": "0.0.3"
+    },
+    "pages": {
+        "configuration": {
+            "title": "Configuration",
+            "description": "Set up your add-on",
+            "tabs": [
+                {
+                    "name": "account",
+                    "title": "Account",
+                    "table": {
+                        "header": [
+                            {
+                                "field": "name",
+                                "label": "Account name"
+                            },
+                            {
+                                "field": "url",
+                                "label": "URL"
+                            }
+                        ],
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "field": "name",
+                            "label": "Account name",
+                            "type": "text",
+                            "required": true,
+                            "help": "Enter a unique name for this account.",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 50,
+                                    "errorMsg": "Length of Account name should be between 1 and 50"
+                                },
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[a-zA-Z]\\w*$",
+                                    "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "url",
+                            "label": "URL",
+                            "type": "text",
+                            "required": true,
+                            "help": "Enter a URL for this account.",
+                            "validators": [
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50,
+                                "errorMsg": "Length of URL should be between 1 and 50"
+                              }
+                            ]
+                        },
+                        {
+                            "field": "api_key",
+                            "label": "API Key",
+                            "type": "text",
+                            "encrypted": true,
+                            "required": true,
+                            "help": "Enter the API Key for this account.",
+                            "validators": [
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 8192,
+                                "errorMsg": "Length of API Key should be between 1 and 8192"
+                              }
+                            ]
+                          }
+                          
+                    ]
+                },
+                {
+                    "name": "proxy",
+                    "title": "Proxy",
+                    "entity": [
+                        {
+                            "field": "proxy_enabled",
+                            "label": "Enable",
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "proxy_type",
+                            "label": "Proxy Type",
+                            "type": "singleSelect",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "label": "http",
+                                        "value": "http"
+                                    },
+                                    {
+                                        "label": "https",
+                                        "value": "https"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "http"
+                        },
+                        {
+                            "field": "proxy_url",
+                            "label": "Host",
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 4096,
+                                    "errorMsg": "Max host length is 4096"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_port",
+                            "label": "Port",
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        65535
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_username",
+                            "label": "Username",
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 50,
+                                    "errorMsg": "Max length of username is 50"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_password",
+                            "label": "Password",
+                            "type": "text",
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of password is 8192"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_rdns",
+                            "label": "Remote DNS resolution",
+                            "type": "checkbox"
+                        }
+                    ],
+                    "options": {
+                        "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy Host can not be empty'; } if(!formData.proxy_port) { return 'Proxy Port can not be empty'; } return true; }"
+                    }
+                },
+                {
+                    "name": "logging",
+                    "title": "Logging",
+                    "entity": [
+                        {
+                            "field": "loglevel",
+                            "label": "Log level",
+                            "type": "singleSelect",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "label": "DEBUG",
+                                        "value": "DEBUG"
+                                    },
+                                    {
+                                        "label": "INFO",
+                                        "value": "INFO"
+                                    },
+                                    {
+                                        "label": "WARNING",
+                                        "value": "WARNING"
+                                    },
+                                    {
+                                        "label": "ERROR",
+                                        "value": "ERROR"
+                                    },
+                                    {
+                                        "label": "CRITICAL",
+                                        "value": "CRITICAL"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "INFO"
+                        }
+                    ]
+                },
+                {
+                    "name": "additional_parameters",
+                    "title": "Add-on Settings",
+                    "entity": [
+                        {
+                            "field": "number_of_retries",
+                            "label": "Number of Retries",
+                            "type": "text",
+                            "help": "Enter the number of retries to be made in case of exception in collecting data. Min: 1, Max: 3.",
+                            "required": true,
+                            "defaultValue": 3,
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        3
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "sleep_time",
+                            "label": "Sleep Time (seconds)",
+                            "type": "text",
+                            "help": "Enter the sleep time in seconds between each retry. Min: 1, Max: 1000. Recommended: 100",
+                            "required": true,
+                            "defaultValue": 100,
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        1000
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "page_size",
+                            "label": "Page Size",
+                            "type": "text",
+                            "help": "Enter the number of data that can be fetched from API in a single call. Min: 1, Max: 2000. Recommended: 100",
+                            "required": true,
+                            "defaultValue": 100,
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        2000
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "inputs": {
+            "title": "Inputs",
+            "description": "Manage your data inputs",
+            "table": {
+                "header": [
+                    {
+                        "field": "name",
+                        "label": "Name"
+                    },
+                    {
+                        "field": "interval",
+                        "label": "Interval"
+                    },
+                    {
+                        "field": "index",
+                        "label": "Index"
+                    },
+                    {
+                        "field": "disabled",
+                        "label": "Status"
+                    }
+                ],
+                "moreInfo": [
+                    {
+                        "field": "name",
+                        "label": "Name"
+                    },
+                    {
+                        "field": "interval",
+                        "label": "Interval"
+                    },
+                    {
+                        "field": "index",
+                        "label": "Index"
+                    },
+                    {
+                        "field": "disabled",
+                        "label": "Status"
+                    },
+                    {
+                        "field": "global_account",
+                        "label": "Global Account"
+                    },
+                    {
+                        "field": "outgoing_feeds",
+                        "label": "Outgoing feeds"
+                    },
+                    {
+                        "field": "start_date",
+                        "label": "Start date"
+                      },
+                    {
+                        "field": "domain",
+                        "label": "Domain"
+                    },
+                    {
+                        "field": "ip",
+                        "label": "IP"
+                    },
+                    {
+                        "field": "uri",
+                        "label": "URL"
+                    },
+                    {
+                        "field": "filehash",
+                        "label": "FileHash"
+                    },
+                    {
+                        "field": "email",
+                        "label": "Email"
+                    },
+                    {
+                        "field": "port",
+                        "label": "Port"
+                    },
+                    {
+                        "field": "observable_time_to_live",
+                        "label": "Observable time to live"
+                    }
+                ],
+                "actions": [
+                    "edit",
+                    "enable",
+                    "delete",
+                    "clone"
+                ]
+            },
+            "services": [
+                {
+                    "name": "eiq_observables",
+                    "title": "Collect Observables",
+                    "entity": [
+                        {
+                            "field": "name",
+                            "label": "Name",
+                            "type": "text",
+                            "help": "Enter a unique name for the data input",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[a-zA-Z]\\w*$",
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores."
+                                },
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100,
+                                    "errorMsg": "Length of input name should be between 1 and 100"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "interval",
+                            "label": "Interval",
+                            "type": "text",
+                            "defaultValue": "3600",
+                            "required": true,
+
+                            "help": "Time interval of input in seconds.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
+                                    "errorMsg": "Interval must be an integer."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "global_account",
+                            "label": "Global Account",
+                            "help": "Name of global account created in Configuration Screen.",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account",
+                                "placeholder": "Name of global account created in Configuration Screen."
+                            }
+                        },
+                        {
+                            "field": "outgoing_feeds",
+                            "label": "Outgoing feeds",
+                            "help": "Comma(,) separated Outgoing feeds ids for observable collection. Max outgoing feed ids allowed are 5.",
+                            "required": true,
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ],
+                            "options": {
+                                "placeholder": "Outgoing feeds"
+                            }
+                        },
+                        {
+                            "field": "start_date",
+                            "label": "Start date",
+                            "help": "Date for observable collection to be entered in yyyy-mm-ddThh:mm:ss.SSSSSS format",
+                            "required": true,
+                            "type": "text",
+                            "options": {
+                              "placeholder": "Start date"
+                            }
+                          },
+                        {
+                            "field": "domain",
+                            "label": "Domain",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "ip",
+                            "label": "IP",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "uri",
+                            "label": "URL",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "filehash",
+                            "label": "FileHash",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "email",
+                            "label": "Email",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "port",
+                            "label": "Port",
+                            "help": "Observable types to ingest",
+                            "required": false,
+                            "type": "checkbox"
+                        }
+
+                    ]
+                },
+                {
+                    "name": "eiq_observables_deletion",
+                    "title": "Delete Observables",
+                    "entity": [
+                        {
+                            "field": "name",
+                            "label": "Name",
+                            "type": "text",
+                            "help": "Enter a unique name for the data input",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[a-zA-Z]\\w*$",
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores."
+                                },
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100,
+                                    "errorMsg": "Length of input name should be between 1 and 100"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "interval",
+                            "label": "Interval",
+                            "type": "text",
+                            "required": true,
+                            "defaultValue": "3600",
+                            "help": "Time interval of input in seconds.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
+                                    "errorMsg": "Interval must be an integer."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "observable_time_to_live",
+                            "label": "Observable time to live",
+                            "help": "Observable time to live in days.",
+                            "required": true,
+                            "type": "text",
+                            "defaultValue": "90",
+                            
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ],
+                            "options": {
+                                "placeholder": "Observable time to live"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
