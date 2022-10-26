@@ -26,6 +26,7 @@ from constants.general import (
     START_DATE,
     URI,
     URL,
+    VERIFY_SSL,
 )
 from constants.messages import CURRENT_INPUT_STANZA, OUTGOING_FEED_IDS_SELECTED
 
@@ -43,7 +44,7 @@ def validate_input(helper, definition):  # pylint: disable=W0613
     pass  # pylint: disable=W0107
 
 
-def collect_events(helper, event_writer):
+def collect_events(helper, event_writer):  # pylint: disable=R0915
     """Implement your data collection logic here."""
     from collector.eiq_data import EIQApi  # pylint: disable=C0415
 
@@ -53,9 +54,20 @@ def collect_events(helper, event_writer):
     helper.log_info(CURRENT_INPUT_STANZA.format(input_stanza_name))
 
     host_name = stanza_names[input_stanza_name][GLOBAL_ACCOUNT][URL]
+    helper.log_info(host_name)
+
+    verify_ssl = False
 
     global_account = helper.get_arg(GLOBAL_ACCOUNT)
     api_key = global_account.get(API_KEY)
+    verify_ssl = global_account.get(VERIFY_SSL)
+    helper.log_info(verify_ssl)
+    if verify_ssl and verify_ssl == "0":
+        verify_ssl = False
+    elif verify_ssl and verify_ssl == "1":
+        verify_ssl = True
+    else:
+        verify_ssl = False
 
     opt_outgoing_feeds = helper.get_arg(OUTGOING_FEEDS, input_stanza_name)
     feed_ids = opt_outgoing_feeds.split(",")
@@ -82,6 +94,7 @@ def collect_events(helper, event_writer):
 
     config_details[STANZA] = input_stanza_name
     config_details[HOST_NAME] = host_name
+    config_details["verify_ssl"] = verify_ssl
     config_details[API_KEY] = api_key
     config_details[OUTGOING_FEEDS] = feed_ids
     config_details[START_DATE] = opt_start_date

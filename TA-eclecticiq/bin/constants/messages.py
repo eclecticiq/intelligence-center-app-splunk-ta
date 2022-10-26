@@ -13,6 +13,9 @@ TEST_CONNECTION = "Test Connection !"
 SAVE_CONFIGURATION = "Save configuration!"
 TEST_CONNECTION_SUCCESSFULL = "Test Connection Successful."
 USER_UNAUTHORIZED = "Error! 500 not authorised ."
+USER_UNAUTHORIZED_MSG = (
+    "Error! 500 not authorised . Please check URL, API key and Certificate of the url."
+)
 GET_CONFIGURATION = "Get configuration!"
 CONFIGURATION_SAVED_SUCCESSFULLY = "Configuration saved Successfully ."
 GET_OUTGOING_FEEDS = "Get Outgoing feeds!"

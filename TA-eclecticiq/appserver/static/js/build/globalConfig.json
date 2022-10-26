@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-eclecticiq",
         "displayName": "EclecticIQ",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "restRoot": "TA_eclecticiq",
         "schemaVersion": "0.0.3"
     },
@@ -57,7 +57,7 @@
                             "label": "URL",
                             "type": "text",
                             "required": true,
-                            "help": "Enter a URL for this account.",
+                            "help": "Enter a URL for this account.The format should be https://<ip_address or DNS>/api/version",
                             "validators": [
                               {
                                 "type": "string",
@@ -66,6 +66,13 @@
                                 "errorMsg": "Length of URL should be between 1 and 50"
                               }
                             ]
+                        },
+                        {
+                            "field": "certificate_validation",
+                            "label": "Verify SSL certificate",
+                            "help": "Should we verify your ssl certificate?",
+                            "required": false,
+                            "type": "checkbox"
                         },
                         {
                             "field": "api_key",

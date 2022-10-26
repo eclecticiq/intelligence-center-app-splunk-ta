@@ -96,6 +96,7 @@ URI = "uri"
 FILEHASH = "filehash"
 URL = "url"
 GLOBAL_ACCOUNT = "global_account"
+VERIFY_SSL = "certificate_validation"
 
 ENTITY_TYPE = "entity_type"
 ENTITY_RELEVANCY = "entity_relevancy"
