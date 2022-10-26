@@ -25,9 +25,8 @@ def collect_events(helper, event_writer):
     opt_observable_time_to_live = helper.get_arg(
         OBSERVABLE_TIME_TO_LIVE, input_stanza_name
     )
-    helper.log_info(input_stanza_name)
-    helper.log_info(opt_observable_time_to_live)
-    helper.log_info(type(opt_observable_time_to_live))
+    helper.log_debug(input_stanza_name)
+    helper.log_debug(opt_observable_time_to_live)
 
     eiq_api = EIQDeleterApi(helper, event_writer)
     response = eiq_api.initiate_delete_observables(opt_observable_time_to_live)

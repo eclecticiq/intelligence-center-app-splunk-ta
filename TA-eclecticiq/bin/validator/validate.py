@@ -73,6 +73,7 @@ from constants.messages import (
     SUCCESSFULLY_FETCHED_USER_PERMISSIONS,
     USER_MISSING_PERMISSIONS,
     USER_UNAUTHORIZED,
+    USER_UNAUTHORIZED_MSG,
 )
 from constants.general import (
     STR_ONE,
@@ -216,7 +217,7 @@ class ValidateAccount(Validator):  # type: ignore
 
         return ids_required_for_user
 
-    def get_platform_permissions(self, url, api_token, proxy_settings):
+    def get_platform_permissions(self, url, api_token, verify_ssl, proxy_settings):
         """Get all platform permissions .
 
         :return: List of permission data ids and name
@@ -228,7 +229,7 @@ class ValidateAccount(Validator):  # type: ignore
 
         url = url + EIQ_PERMISSIONS
 
-        response = self.send_request(url, api_token, proxy_settings)
+        response = self.send_request(url, api_token, verify_ssl, proxy_settings)
         if not response:
             return permissions_data
         if response.status_code == STATUS_CODE_401:
@@ -298,7 +299,7 @@ class ValidateAccount(Validator):  # type: ignore
                     permissions_name.append(data[NAME])
         return permissions_name
 
-    def get_user_granted_permissions(self, url, api_token, proxy_settings):
+    def get_user_granted_permissions(self, url, api_token, verify_ssl, proxy_settings):
         """Get all permissions granted to user.
 
         :return: List of permissions
@@ -312,7 +313,8 @@ class ValidateAccount(Validator):  # type: ignore
         # request = self.auth_config.get_eiq_request(configs=configs_user_permissions)
         url = url + EIQ_USER_PERMISSIONS + SLASH + SELF
 
-        response = self.send_request(url, api_token, proxy_settings)
+        response = self.send_request(url, api_token, verify_ssl, proxy_settings)
+
         if not response:
             return permissions, 404
 
@@ -337,14 +339,14 @@ class ValidateAccount(Validator):  # type: ignore
 
         return permissions, response.status_code
 
-    def validate_user_permissions(self, url, api_token, proxy_settings):
+    def validate_user_permissions(self, url, api_token, verify_ssl, proxy_settings):
         """Get permission ids granted to user.
 
         :return: missing_permissions
         :rtype: set
         """
         permissions_of_user, status_code = self.get_user_granted_permissions(
-            url, api_token, proxy_settings
+            url, api_token, verify_ssl, proxy_settings
         )
         missing_permissions = []
         if status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
@@ -360,7 +362,7 @@ class ValidateAccount(Validator):  # type: ignore
                 permissions_of_user
             )  # permission ids possesed by user
             permissions_data = self.get_platform_permissions(
-                url, api_token, proxy_settings
+                url, api_token, verify_ssl, proxy_settings
             )
             if permissions_data:
                 ids_required_for_user = ValidateAccount.get_platform_permission_ids(
@@ -373,7 +375,7 @@ class ValidateAccount(Validator):  # type: ignore
                 if not user_authenticated:
                     # check for missing permissions
                     permissions_data = self.get_platform_permissions(
-                        url, api_token, proxy_settings
+                        url, api_token, verify_ssl, proxy_settings
                     )
                     missing_permissions = ValidateAccount.get_permission_name_from_id(
                         permissions_data, permission_ids
@@ -383,7 +385,7 @@ class ValidateAccount(Validator):  # type: ignore
                 status_code = STATUS_CODE_401
         return missing_permissions, status_code
 
-    def send_request(self, url, api_token, proxy_settings):
+    def send_request(self, url, api_token, verify_ssl, proxy_settings):
         """Send an API request to the URL provided with api token and proxy .sets the error message in UI and Log.
 
         :param url: API URL to send request
@@ -402,7 +404,7 @@ class ValidateAccount(Validator):  # type: ignore
                 GET,
                 url,
                 headers=headers,
-                verify=True,
+                verify=verify_ssl,
                 proxies=proxy_settings,
                 timeout=40,
             )
@@ -437,12 +439,18 @@ class ValidateAccount(Validator):  # type: ignore
             self.put_msg(PROXY_FETCHING_ERROR_LOG_MESSAGE.format(msg=exception))
             return False
 
+        verify_ssl = False
         # Set parameters
         url = data[API_URL]
+        logger.info(data)
+
         if not url.startswith(HTTPS):
             self.put_msg(INVALID_URL_ERROR_MSG)
             return False
         api_token = data.get(API_KEY)
+
+        if data.get("certificate_validation") == "1":
+            verify_ssl = True
 
         # Check if API token is there
         if not api_token:
@@ -451,10 +459,11 @@ class ValidateAccount(Validator):  # type: ignore
             return False
 
         missing_permissions, eiq_api_status_code = self.validate_user_permissions(
-            url, api_token, proxy_settings
+            url, api_token, verify_ssl, proxy_settings
         )
 
         if eiq_api_status_code not in [200, 201]:
+            self.put_msg(USER_UNAUTHORIZED_MSG)
             logger.info(USER_UNAUTHORIZED)
         elif not missing_permissions and eiq_api_status_code in [200, 201]:
             logger.info(CREDENTIALS_GIVEN_ARE_CORRECT)

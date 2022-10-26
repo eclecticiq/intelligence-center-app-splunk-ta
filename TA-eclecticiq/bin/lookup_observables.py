@@ -18,7 +18,6 @@ import ta_eclecticiq_declare  # noqa pylint: disable=C0413,W0611
 from constants.defaults import (  # pylint: disable=C0413
     ACCOUNTS_CONF,
     DEFAULT_TIMEOUT,
-    DEFAULT_VERIFY_SSL,
     LOCAL_DIR,
     SETTINGS_CONF,
 )  # pylint: disable=C0413
@@ -162,7 +161,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         return new_data
 
     @staticmethod
-    def fetch_entity_details(entity_id, url, api_key, proxy):
+    def fetch_entity_details(entity_id, url, api_key, verify_ssl, proxy):
         """Get entity details by id.
 
         :param entity_id: Entity ID
@@ -178,7 +177,9 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
 
         logger.info(endpoint)
         try:
-            response = Send.send_request(endpoint, {}, headers=headers, proxy=proxy)
+            response = Send.send_request(
+                endpoint, {}, verify_ssl, headers=headers, proxy=proxy
+            )
         except Exception as err:
             logger.error(err)
             return {}
@@ -188,7 +189,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         return data
 
     @staticmethod
-    def get_observable_by_id(obs_id, url, api_key, proxy):
+    def get_observable_by_id(obs_id, url, api_key, verify_ssl, proxy):
         """Get observables by id.
 
         :param obs_id: Observable ID
@@ -201,7 +202,9 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
 
         headers = {"Authorization": f"Bearer {api_key}"}
         try:
-            response = Send.send_request(endpoint, {}, headers=headers, proxy=proxy)
+            response = Send.send_request(
+                endpoint, {}, verify_ssl, headers=headers, proxy=proxy
+            )
         except Exception as err:
             logger.error(err)
             return {}
@@ -211,7 +214,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         return data
 
     @staticmethod
-    def get_entity_data(data_item, url, api_key, proxy):
+    def get_entity_data(data_item, url, api_key, verify_ssl, proxy):
         """Get entity data to show on UI.
 
         :param data_item: Data from lookup obsrvables Dict
@@ -225,7 +228,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         entity_data_dict = {}
         for item in data_item.get("entities"):
             entity_data = Send.fetch_entity_details(
-                str(item.split("/")[-1]), url, api_key, proxy
+                str(item.split("/")[-1]), url, api_key, verify_ssl, proxy
             )
             observables = (
                 entity_data.get("observables") if entity_data.get("observables") else []
@@ -235,7 +238,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
             obs_data_list = []
             for observable in observables:
                 obs_data = Send.get_observable_by_id(
-                    str(observable.split("/")[-1]), url, api_key, proxy
+                    str(observable.split("/")[-1]), url, api_key, verify_ssl, proxy
                 )
 
                 append_data = Send.prepare_observable_data(obs_data)
@@ -250,7 +253,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         return entity_data_dict
 
     @staticmethod
-    def send_request(url, params, headers, proxy):
+    def send_request(url, params, verify_ssl, headers, proxy):
         """Send an API request to the URL provided with headers and parameters.
 
         :param logger: Splunk logger to send request
@@ -276,7 +279,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
                 url,
                 headers=headers,
                 params=params,
-                verify=DEFAULT_VERIFY_SSL,
+                verify=verify_ssl,
                 timeout=DEFAULT_TIMEOUT,
                 proxies=proxy_settings,
             )
@@ -344,6 +347,27 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
             return apikeyconf[account_name][URL]
 
     @staticmethod
+    def get_verify_ssl(api_conf_path):
+        """Get the URL from accounts.conf.
+
+        :param api_conf_path: path to the conf file
+        :type api_conf_path: str
+        :return: URL value from the conf
+        :rtype: str
+        """
+        apikeyconf = {}
+        if os.path.exists(api_conf_path):
+            localconf = cli.readConfFile(api_conf_path)
+            for name, content in localconf.items():
+                if name != "default":
+                    account_name = name
+                if name in apikeyconf:
+                    apikeyconf[name].update(content)
+                else:
+                    apikeyconf[name] = content
+            return apikeyconf.get(account_name).get("certificate_validation")
+
+    @staticmethod
     def get_proxy(settings_conf_path):
         """Get the proxy from settings.conf.
 
@@ -408,6 +432,14 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         appdir = os.path.dirname(os.path.dirname(__file__))
         localconfpath = os.path.join(appdir, LOCAL_DIR, ACCOUNTS_CONF)
         url = self.get_url(localconfpath)
+        url = Send.get_url(localconfpath)
+
+        verify_ssl = Send.get_verify_ssl(localconfpath)
+        if verify_ssl == "1":  # pylint: disable=R1703
+            verify_ssl = True
+        else:
+            verify_ssl = False
+
         localsettings_conf = os.path.join(appdir, LOCAL_DIR, SETTINGS_CONF)
         settingsconf = {}
         settingsconf[PROXY] = Send.get_proxy(localsettings_conf)
@@ -426,7 +458,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
             params["filter[type]"] = obs_type
         try:
             response = Send.send_request(
-                url + "/observables", params, headers, settingsconf[PROXY]
+                url + "/observables", params, verify_ssl, headers, settingsconf[PROXY]
             )
         except Exception as err:
             logger.error(err)
@@ -438,7 +470,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         for data_item in data:
             if data_item.get("entities"):
                 entity_data = self.get_entity_data(
-                    data_item, url, api_key, settingsconf[PROXY]
+                    data_item, url, api_key, verify_ssl, settingsconf[PROXY]
                 )
                 final_data.append(entity_data)
         final_data.append(value)

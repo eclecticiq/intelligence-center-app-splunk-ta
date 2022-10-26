@@ -8,7 +8,6 @@ from constants.general import (
     LAST_UPDATED_AT_EIQ,
     OBSERVABLE_IDS,
     OBSERVABLE_STORE_COLLECTION_NAME,
-    OBSERVABLE_TIME_TO_LIVE,
     PLUS,
 )
 from constants.messages import (
@@ -40,7 +39,7 @@ class EIQDeleterApi:
         observable_time_to_live = get_formatted_date(
             int(float(observable_time_to_live))
         )
-        self.helper.log_info(OBSERVABLE_TIME_TO_LIVE.format(observable_time_to_live))
+
         splunk_api = SplunkApi(self.helper, self.event_writer)
         response = splunk_api.get_all_records_in_collection(
             OBSERVABLE_STORE_COLLECTION_NAME

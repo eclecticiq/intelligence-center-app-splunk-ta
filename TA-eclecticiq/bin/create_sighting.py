@@ -101,7 +101,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         return parsed
 
     @staticmethod
-    def send_request(method, url, headers, proxy, data, params=None):
+    def send_request(method, url, verify_ssl, headers, proxy, data, params=None):
         """Send an API request to the URL provided with headers and parameters.
 
         :param url: API URL to send request
@@ -126,7 +126,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
                     url,
                     headers=headers,
                     params=params,
-                    verify=True,
+                    verify=verify_ssl,
                     timeout=50,
                     proxies=proxy_settings,
                 )
@@ -136,7 +136,7 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
                     url,
                     headers=headers,
                     data=json.dumps(data),
-                    verify=True,
+                    verify=verify_ssl,
                     timeout=50,
                     proxies=proxy_settings,
                 )
@@ -219,6 +219,27 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
                 else:
                     apikeyconf[name] = content
             return apikeyconf[account_name][URL]
+
+    @staticmethod
+    def get_verify_ssl(api_conf_path):
+        """Get the URL from accounts.conf.
+
+        :param api_conf_path: path to the conf file
+        :type api_conf_path: str
+        :return: URL value from the conf
+        :rtype: str
+        """
+        apikeyconf = {}
+        if os.path.exists(api_conf_path):
+            localconf = cli.readConfFile(api_conf_path)
+            for name, content in localconf.items():
+                if name != "default":
+                    account_name = name
+                if name in apikeyconf:
+                    apikeyconf[name].update(content)
+                else:
+                    apikeyconf[name] = content
+            return apikeyconf.get(account_name).get("certificate_validation")
 
     @staticmethod
     def get_proxy(settings_conf_path):
@@ -381,6 +402,15 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         appdir = os.path.dirname(os.path.dirname(__file__))
         localconfpath = os.path.join(appdir, LOCAL_DIR, ACCOUNTS_CONF)
         url = Send.get_url(localconfpath)
+
+        verify_ssl = Send.get_verify_ssl(localconfpath)
+        if verify_ssl == "1":  # pylint: disable=R1703
+            verify_ssl = True
+        else:
+            verify_ssl = False
+
+        logger.info(verify_ssl)
+
         localsettings_conf = os.path.join(appdir, LOCAL_DIR, SETTINGS_CONF)
         settingsconf = {}
         settingsconf[PROXY] = Send.get_proxy(localsettings_conf)
@@ -443,7 +473,12 @@ class Send(PersistentServerConnectionApplication):  # type: ignore
         headers = {AUTHORIZATION: f"Bearer {api_key}"}
         try:
             response = Send.send_request(
-                "post", url + "/entities", headers, settingsconf[PROXY], sighting
+                "post",
+                url + "/entities",
+                verify_ssl,
+                headers,
+                settingsconf[PROXY],
+                sighting,
             )
         except Exception as err:
             logger.error(err)

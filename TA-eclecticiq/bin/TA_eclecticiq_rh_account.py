@@ -30,6 +30,13 @@ fields = [
         default=None,
         validator=ValidateAccount()
     ),
+        field.RestField(
+        "certificate_validation",
+        required=False,
+        encrypted=False,
+        default=False,
+        validator=ValidateAccount()
+    ),
 ]
 model = RestModel(fields, name=None)
 

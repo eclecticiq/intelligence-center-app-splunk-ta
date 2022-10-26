@@ -96,9 +96,11 @@ After installation of EclecticIQ Intelligence Centre Addon to set up the account
 ##### 1. Navigate to apps and select EIQ Intelligence centre Addon.
 ##### 2. Click on the Configuration tab.
 ##### 3. In the Accounts Sub tab click on Add.
-##### 4. Give a unique name to the configuration and add the URL (`https://{{hostname}}/api/{{version}}`) of the product & API key generated from the Product.
-##### 5. Click on Add.
-![Account](/docs/screenshots/7.png)
+##### 4. Give a unique name to the configuration and add the URL (https://ip_address or DNS/api/version) of the product & API key generated from the Product. Eg:  https://ic-playground.eclecticiq.com/api/v1 or https://18.194.151.112/api/v1
+##### 5. User can select the Verify SSL certificate checkbox if wants to verify the SSL certificate.
+##### 6. Click on Add.
+
+![Account](/docs/screenshots/36.png)
 
 Account should be created successfully
 ![Account](/docs/screenshots/8.png)
@@ -108,7 +110,7 @@ For setting up the proxy for data collection of API data, follow the below-menti
 ##### 1.Navigate to apps and select EIQ Intelligence centre Addon.
 ##### 2. Click on the Configuration tab.
 ##### 3. Click on the Proxy tab under the configuration tab.
-##### 4. Fill in all the necessary details. (`https://{{hostname}}/api/{{version}}`) of the product & API key generated from the Product.
+##### 4. Fill in all the necessary details. (https://ip_address or DNS/api/version) of the product & API key generated from the Product. Eg:  https://ic-playground.eclecticiq.com/api/v1 or https://18.194.151.112/api/v1
 ##### 5. Click on Save.
 
 ![Image](/docs/screenshots/9.png)

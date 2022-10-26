@@ -14,7 +14,6 @@ from constants.general import (
     STR_COLON,
     STR_FIVE,
 )
-from constants.defaults import DEFAULT_VERIFY_SSL
 from constants.messages import API_ERROR, EVENTS_RESPONSE_ERROR_CODE
 
 
@@ -56,6 +55,7 @@ def send_request(helper, url, headers, params, proxy, configs):
     :rtype: dict
     """
     input_name = configs[STANZA]
+    helper.log_info(f"Request is made with verify ssl value = {configs['verify_ssl']}")
 
     if proxy:
         proxy_settings = format_proxy_uri(proxy)
@@ -67,7 +67,7 @@ def send_request(helper, url, headers, params, proxy, configs):
             url,
             headers=headers,
             params=params,
-            verify=DEFAULT_VERIFY_SSL,
+            verify=configs["verify_ssl"],
             timeout=50,
             proxies=proxy_settings,
         )

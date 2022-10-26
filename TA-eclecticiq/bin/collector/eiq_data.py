@@ -266,8 +266,7 @@ class EIQApi:
 
         return observable_type, temp_dict
 
-    @staticmethod
-    def formatted_data_to_load_for_entities(item, outgoing_feed_id):
+    def formatted_data_to_load_for_entities(self, item, outgoing_feed_id):
         """Get formatted data for entities to load in kv store.
 
         :param item: data for entities
@@ -278,30 +277,40 @@ class EIQApi:
         :rtype: dict
 
         """
+        self.helper.log_debug(item)
+        self.helper.log_debug(outgoing_feed_id)
+
         entity_record = {}
-        entity_record[_KEY] = item[ID]
-        entity_record[ENTITY_TYPE] = item[TYPE]
-        entity_record[ENTITY_RELEVANCY] = item[RELEVANCY]
-        entity_record[ENTITY_SOURCES] = item[SOURCES]
+        entity_record[_KEY] = item.get(ID)
+        entity_record[ENTITY_TYPE] = item.get(TYPE)
+        entity_record[ENTITY_RELEVANCY] = item.get(RELEVANCY)
+        entity_record[ENTITY_SOURCES] = item.get(SOURCES)
 
-        entity_record[ENTITY_DATA_TITLE] = item[DATA][TITLE]
-        entity_record[ENTITY_DATA_CONFIDENCE] = item[DATA][CONFIDENCE]
+        entity_record[ENTITY_DATA_TITLE] = item.get(DATA).get(TITLE)
+        entity_record[ENTITY_DATA_CONFIDENCE] = item.get(DATA).get(CONFIDENCE)
 
-        entity_record[META_TLP] = item[META][TLP_COLOR]
-        entity_record[META_ESTIMATED_OBSERVED_TIME] = item[META][
+        entity_record[META_TLP] = item.get(META).get(TLP_COLOR)
+        entity_record[META_ESTIMATED_OBSERVED_TIME] = item.get(META).get(
             ESTIMATED_OBSERVED_TIME
-        ]
-        entity_record[META_ESTIMATED_THREAT_START_TIME] = item[META][
+        )
+
+        entity_record[META_ESTIMATED_THREAT_START_TIME] = item.get(META).get(
             ESTIMATED_THREAT_START_TIME
-        ]
-        entity_record[META_ESTIMATED_THREAT_END_TIME] = item[META][
+        )
+
+        entity_record[META_ESTIMATED_THREAT_END_TIME] = item.get(META).get(
             ESTIMATED_THREAT_END_TIME
-        ]
-        meta_tags = ",".join(item[META][TAGS])
+        )
+
+        meta_tags = "None"
+
+        if item.get(META).get(TAGS):
+            meta_tags = ",".join(item.get(META).get(TAGS))
+
         entity_record[META_TAGS] = meta_tags
-        entity_record["last_updated_at"] = item["last_updated_at"]
-        entity_record[META_TAXONOMIES] = item[META][TAXONOMIES]
-        entity_record[META_SOURCE_RELIABILITY] = item[META][SOURCE_RELIABILITY]
+        entity_record["last_updated_at"] = item.get("last_updated_at")
+        entity_record[META_TAXONOMIES] = item.get(META).get(TAXONOMIES)
+        entity_record[META_SOURCE_RELIABILITY] = item.get(META).get(SOURCE_RELIABILITY)
 
         entity_record[FEED_ID] = outgoing_feed_id
 
@@ -463,17 +472,21 @@ class EIQApi:
         :rtype: boolean
         """
         for data in entities_data:
+
             splunk_api = SplunkApi(self.helper, self.event_writer)
             response_observables = False
             response_entity = False
 
             entity_id = data[ID]
-            entity_data = EIQApi.formatted_data_to_load_for_entities(data, feed_id)
+            self.helper.log_debug(entity_id)
+            entity_data = self.formatted_data_to_load_for_entities(data, feed_id)
+            self.helper.log_debug(entity_data)
 
             # check whether data already present , if present then update with latest
             response = splunk_api.get_record_in_collection(
                 ENTITIES_STORE_COLLECTION_NAME, entity_id
             )
+
             if response:
                 response_entity = splunk_api.update_record_in_collection(
                     entity_data,
@@ -484,6 +497,7 @@ class EIQApi:
                 response_entity = splunk_api.insert_record_in_collection(
                     entity_data, ENTITIES_STORE_COLLECTION_NAME  # response_entity =
                 )
+
             observable_ids = EIQApi.get_unique_observables(data)
 
             if observable_ids:
@@ -499,6 +513,7 @@ class EIQApi:
                 # fetch data and insert in kv  #response_observables =
 
             if (not response_observables) and (not response_entity):
+                self.helper.log_info("here")
                 self.helper.log_info(
                     f"Response received is {response_observables} and {response_entity}"
                 )
@@ -552,7 +567,7 @@ class EIQApi:
                 proxy=proxy_settings,
                 configs=config_details,
             )
-            self.helper.log_info(response.status_code)
+            # self.helper.log_info(response.status_code)
 
             content = self.get_response_content(response)
             count = content.get(COUNT)
@@ -563,6 +578,7 @@ class EIQApi:
                 return observables, new_checkpoint, response
 
             data = content.get(DATA)  # Get entities for the lookup
+            # self.helper.log_info(data)
 
             response = self.get_entity_data(
                 data, outgoing_feed_id, config_details, proxy_settings
