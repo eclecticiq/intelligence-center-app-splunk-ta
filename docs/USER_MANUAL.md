@@ -1,4 +1,5 @@
-# EclecticIQ Intelligence Center App for QRadar
+# EclecticIQ Splunk Addon & App User Manual
+
 
 # 1. Introduction
 EclecticIQ Intelligence Platform
@@ -40,8 +41,6 @@ Below mentioned modules will be covered as part of this document.
 
 ### 1.2.1 Installation of Splunk Enterprise
 
-#### Step 1. Configure the outgoing feed(s) you wish to use with the QRadar App
-
 To install the splunk enterprise. Follow this manual Splunk Installation Manual.(https://docs.splunk.com/index.php?title=Documentation:Splunk:Installation:Beforeyouinstall:8.1.0&action=pdfbook&version=8.2.2&product=Splunk).
 
 ### 1.2.2 Installation for both APP & Addon
@@ -71,6 +70,16 @@ After installation, we can see the Addon and App in Apps dropdown list
 
 ![Installation](/docs/screenshots/6.png)
 
+## 1.3 Setup outgoing feed
+
+You can connect the Splunk add-in to one or more outgoing feeds in the Intelligence Center.
+
+When configuring an outgoing feed you should set the transport type to `EclecticIQ Entities CSV`.
+
+It is also important that the authenticated user (the user whose API key is being used in the add-on) has the correct permissions to access all the datasets used in the outgoing feed AND the workspaces that these data sets belong too.
+
+A common error seen is that a user does not have access to read either the datasets and/or the workspaces these datasets belong to for an outgoing feed configured in Splunk. An easy way to test permissions related issues is to use an API key of an Administrator user in the EclecticIQ Intelligence Center versus a non-Administrator. If the Administrator sees observables in Splunk, yet the other user does not, it is 99% likely permissions are incorrectly configured.
+
 # 2. Splunk Addon
 * The EIQ app for Splunk will collect the observables data from the EIQ platform and store it in KV store lookups.
 * Users will be provided an option for sighting creation by clicking on the events.
@@ -88,9 +97,8 @@ After installation of EclecticIQ Intelligence Centre Addon to set up the account
 ##### 2. Click on the Configuration tab.
 ##### 3. In the Accounts Sub tab click on Add.
 ##### 4. Give a unique name to the configuration and add the URL (https://ip_address or DNS/api/version) of the product & API key generated from the Product. Eg:  https://ic-playground.eclecticiq.com/api/v1 or https://18.194.151.112/api/v1
-
-##### 4. User can select the Verify SSL certificate checkbox if wants to verify the SSL certificate.
-##### 5. Click on Add.
+##### 5. User can select the Verify SSL certificate checkbox if wants to verify the SSL certificate.
+##### 6. Click on Add.
 ![Account](/docs/screenshots/36.png)
 
 Account should be created successfully
