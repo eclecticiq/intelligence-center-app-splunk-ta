@@ -99,6 +99,7 @@ After installation of EclecticIQ Intelligence Centre Addon to set up the account
 ##### 4. Give a unique name to the configuration and add the URL (https://ip_address or DNS/api/version) of the product & API key generated from the Product. Eg:  https://ic-playground.eclecticiq.com/api/v1 or https://18.194.151.112/api/v1
 ##### 5. User can select the Verify SSL certificate checkbox if wants to verify the SSL certificate.
 ##### 6. Click on Add.
+
 ![Account](/docs/screenshots/36.png)
 
 Account should be created successfully
