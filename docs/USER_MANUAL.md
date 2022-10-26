@@ -91,7 +91,7 @@ After installation of EclecticIQ Intelligence Centre Addon to set up the account
 
 ##### 4. User can select the Verify SSL certificate checkbox if wants to verify the SSL certificate.
 ##### 5. Click on Add.
-![Account](/docs/screenshots/34.png)
+![Account](/docs/screenshots/35.png)
 
 Account should be created successfully
 ![Account](/docs/screenshots/8.png)
