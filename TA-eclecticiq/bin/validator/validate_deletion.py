@@ -46,10 +46,15 @@ class ValidateDeletion(Validator):  # type: ignore
         :return: True if interval lies between min and max interval else False
         :rtype: boolean
         """
-        if MIN_INTERVAL <= int(interval) <= MAX_INTERVAL:
-            logger.info(MIN_AND_MAX_INTERVAL)
+        try:
+            if isinstance(int(interval), int):
+                if MIN_INTERVAL <= int(interval) <= MAX_INTERVAL:
+                    logger.info(MIN_AND_MAX_INTERVAL)
+                    return True
+                return False
+
+        except ValueError:
             return True
-        return False
 
     @staticmethod
     def validate_min_max_numeric_observable_time(interval):
@@ -94,14 +99,10 @@ class ValidateDeletion(Validator):  # type: ignore
         """
         observable_time_to_live = data["observable_time_to_live"]
         deletion_interval = data["interval"]
-        is_numeric_interval = ValidateDeletion.validate_integer_only(deletion_interval)
+
         is_numeric_observable_time_to_live = ValidateDeletion.validate_integer_only(
             observable_time_to_live
         )
-        if not is_numeric_interval:
-            logger.info("Only Integer values are allowed for Interval !.")
-            self.put_msg("Only Integer values are allowed Interval  !")
-            return False
 
         if not is_numeric_observable_time_to_live:
             logger.info(

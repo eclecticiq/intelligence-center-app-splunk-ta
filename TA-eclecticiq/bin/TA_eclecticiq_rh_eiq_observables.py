@@ -17,10 +17,7 @@ fields = [
         "interval",
         required=True,
         encrypted=False,
-        default=None,
-        validator=validator.Pattern(
-            regex=r"""^\-[1-9]\d*$|^\d*$""",
-        ),
+        default=None
     ),
     field.RestField(
         "global_account", required=True, encrypted=False, default=None, validator=None
