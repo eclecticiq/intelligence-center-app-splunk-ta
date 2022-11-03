@@ -397,17 +397,9 @@
                             "field": "interval",
                             "label": "Interval",
                             "type": "text",
-                            "defaultValue": "3600",
                             "required": true,
-
-                            "help": "Time interval of input in seconds.",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                                    "errorMsg": "Interval must be an integer."
-                                }
-                            ]
+                            "help": "Time interval of input in seconds or cron job can be scheduled."
+                            
                         },
                         {
                             "field": "global_account",
@@ -522,15 +514,7 @@
                             "label": "Interval",
                             "type": "text",
                             "required": true,
-                            "defaultValue": "3600",
-                            "help": "Time interval of input in seconds.",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                                    "errorMsg": "Interval must be an integer."
-                                }
-                            ]
+                            "help": "Time interval of input in seconds or cron job can be scheduled."
                         },
                         {
                             "field": "observable_time_to_live",

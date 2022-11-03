@@ -16,7 +16,6 @@ fields = [
         "interval",
         required=True,
         encrypted=False,
-        default="3600",
         validator=None,
     ),
     field.RestField(

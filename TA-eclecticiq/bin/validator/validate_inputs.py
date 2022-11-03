@@ -180,10 +180,18 @@ class ValidateInputs(Validator):  # type: ignore
         :return: True if interval lies between min and max interval else False
         :rtype: boolean
         """
-        if MIN_INTERVAL <= int(interval) <= MAX_INTERVAL:
-            logger.info(INTERVAL_IS_BETWEEN_MIN_AND_MAX_INTERVAL)
+        try:
+            if isinstance(int(interval), int):
+                if (  # pylint: disable=R1705
+                    MIN_INTERVAL <= int(interval) <= MAX_INTERVAL
+                ):
+                    logger.info(INTERVAL_IS_BETWEEN_MIN_AND_MAX_INTERVAL)
+                    return True
+                else:
+                    return False
             return True
-        return False
+        except ValueError:
+            return True
 
     def validate(self, value, data):  # pylint: disable=W0613,R0911
         """
