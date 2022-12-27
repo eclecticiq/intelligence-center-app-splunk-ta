@@ -192,6 +192,7 @@ $SPLUNK_HOME/var/log/splunk/ta_eclecticiq_eiq_observables.log
      * Unique Name: Unique name for data input
      * Interval: Time interval of input in seconds
      * Observable time to live: Observable time to live in days
+     ***Note*** : Observable time to live must be between 1 day and 90 days
 ![Image](/docs/screenshots/17.png)
 7. Click on Add button.
 8. Deletion of Observables record created successfully.
