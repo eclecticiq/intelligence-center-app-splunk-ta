@@ -1,10 +1,37 @@
 """Splunk APIs for KV store."""
 
 import json
-
+import traceback
+from constants.defaults import (
+    DEFAULT_EARLIEST_TIME,
+    DEFAULT_EXEC_MODE,
+    DEFAULT_LATEST_TIME,
+    SEARCH_RECORDS_QUERY,
+)
+from constants.general import (
+    EARLIEST_TIME,
+    EXEC_MODE,
+    ID,
+    LAST_UPDATED_AT,
+    LATEST_TIME,
+    RESULT_COUNT,
+    STR_ONE,
+    TIME_FORMAT,
+    _KEY,
+    APP_NAME,
+    NOBODY,
+    SESSION_KEY,
+)
+from constants.messages import (
+    INSERTING_EVENT_WITH_ID,
+    NO_EVENTS_FOUND_INSERTING,
+    NOT_INSERTING_EVENT_WITH_ID,
+)
 import splunklib.client as client
-from constants.general import _KEY, APP_NAME, NOBODY, SESSION_KEY
 from splunklib.binding import HTTPError
+import datetime
+from datetime import timezone
+import splunklib.results as results
 
 
 class SplunkApi:
@@ -14,7 +41,7 @@ class SplunkApi:
         self.helper = helper
         self.event_writer = event_writer
 
-    def insert_record_in_collection(self, data, collection_name):
+    def insert_record_in_collection(self, data, sourcetype, collection_name, source):
         """Insert record in  splunk kv store.
 
         :param data: data to insert in collection
@@ -25,120 +52,60 @@ class SplunkApi:
         :return: response
         :rtype: boolean
         """
-        insertion = True
-        session_key = self.helper.context_meta[SESSION_KEY]
-
-        service = client.connect(token=session_key, owner=NOBODY, app=APP_NAME)
-
-        collection = service.kvstore[collection_name]
         try:
-            response = collection.data.insert(json.dumps(data))
-            self.helper.log_info(response)
-        except HTTPError as error:
-            self.helper.log_info(error)
-            insertion = False
-        return insertion
+            insertion = True
+            session_key = self.helper.context_meta[SESSION_KEY]
+            # self.helper.log_info("session_key ={}".format(session_key))
+            service = client.connect(token=session_key, owner=NOBODY, app=APP_NAME)
+            # self.helper.log_info("service created!")
+            query = SEARCH_RECORDS_QUERY.format(collection_name, sourcetype, data[ID])
+            # Create a search job
+            kwargs_oneshotsearch = {
+                EARLIEST_TIME: DEFAULT_EARLIEST_TIME,
+                LATEST_TIME: DEFAULT_LATEST_TIME,
+                EXEC_MODE: DEFAULT_EXEC_MODE,
+            }
+            job = service.jobs.create(query, **kwargs_oneshotsearch)
+            job_stats = job.content
+            if job_stats.get(RESULT_COUNT) and job_stats.get(RESULT_COUNT) == STR_ONE:
+                search_results = results.ResultsReader(job.results())
+                result_list = {}
+                for result in search_results:
+                    result_list = json.loads(json.dumps(result))
+                self.helper.log_info(result_list)
+                if result_list:
+                    if data[LAST_UPDATED_AT] > result_list[LAST_UPDATED_AT]:
+                        insertion = True
+                        self.helper.log_info(INSERTING_EVENT_WITH_ID.format(data[ID]))
+                    else:
+                        self.helper.log_info(
+                            NOT_INSERTING_EVENT_WITH_ID.format(data[ID])
+                        )
+                        insertion = False
+                else:
+                    self.helper.log_info(NO_EVENTS_FOUND_INSERTING.format(data[ID]))
+                    insertion = True
+            else:
+                self.helper.log_info(NO_EVENTS_FOUND_INSERTING.format(data[ID]))
+                insertion = True
 
-    def update_record_in_collection(self, data, collection_name, key):
-        """Update record in  splunk kv store.
-
-        :param data: data to insert in collection
-        :type data: dict
-        :param collection_name: collection name to insert the data
-        :type collection_name: str
-        :param key: key id to update the record
-        :type key: str
-
-        :return: updation response
-        :rtype: boolean
-        """
-        updation = True
-        session_key = self.helper.context_meta[SESSION_KEY]
-
-        service = client.connect(token=session_key, owner=NOBODY, app=APP_NAME)
-
-        collection = service.kvstore[collection_name]
-        try:
-            response = collection.data.update(key, json.dumps(data))
-            self.helper.log_info(response)
-        except HTTPError as error:
-            self.helper.log_info(error)
-            updation = False
-
-        return updation
-
-    def get_record_in_collection(self, collection_name, key):
-        """Get a record from splunk kv store.
-
-        :param collection_name: collection name to get the data
-        :type collection_name: str
-        :param key: key id to update the record
-        :type key: str
-
-        :return: response
-        :rtype: boolean
-        """
-        response = []
-        session_key = self.helper.context_meta[SESSION_KEY]
-
-        service = client.connect(token=session_key, owner=NOBODY, app=APP_NAME)
-
-        collection = service.kvstore[collection_name]
-        try:
-            query = json.dumps({_KEY: str(key)})
-            response = collection.data.query(query=query)
-
-        except HTTPError as error:
-            self.helper.log_info(error)
-
-        return response
-
-    def get_all_records_in_collection(self, collection_name):
-        """Get all record from splunk kv store.
-
-        :param collection_name: collection name to get the data
-        :type collection_name: str
-
-        :return: response
-        :rtype: boolean
-        """
-        response = []
-        session_key = self.helper.context_meta[SESSION_KEY]
-
-        service = client.connect(token=session_key, owner=NOBODY, app=APP_NAME)
-
-        collection = service.kvstore[collection_name]
-        try:
-
-            response = collection.data.query()
-        except HTTPError as error:
-            self.helper.log_info(error)
-
-        return response
-
-    def delete_record_from_collection(self, collection_name, key):
-        """Delete record from splunk kv store.
-
-        :param collection_name: collection name to get the data
-        :type collection_name: str
-        :param key: key id to update the record
-        :type key: str
-
-        :return: response
-        :rtype: boolean
-        """
-        deletion = True
-        session_key = self.helper.context_meta[SESSION_KEY]
-
-        service = client.connect(token=session_key, owner=NOBODY, app=APP_NAME)
-
-        collection = service.kvstore[collection_name]
-        try:
-            query = json.dumps({_KEY: str(key)})
-            collection.data.delete(query)
-
-        except HTTPError as error:
-            self.helper.log_info(error)
-            deletion = False
-
-        return deletion
+            if insertion:
+                seconds = 1
+                time_field = datetime.datetime.strptime(
+                    data[LAST_UPDATED_AT], TIME_FORMAT
+                )
+                epoch_time = int(
+                    time_field.replace(tzinfo=timezone.utc).timestamp() * seconds
+                )
+                splnk_event = self.helper.new_event(
+                    source=source,
+                    index=collection_name,
+                    sourcetype=sourcetype,
+                    data=json.dumps(data),
+                    time=epoch_time,
+                )
+                self.event_writer.write_event(splnk_event)
+            return True
+        except Exception:
+            self.helper.log_info(traceback.format_exc())
+            return False

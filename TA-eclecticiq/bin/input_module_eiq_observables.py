@@ -74,7 +74,8 @@ def collect_events(helper, event_writer):  # pylint: disable=R0915
     helper.log_info(OUTGOING_FEED_IDS_SELECTED.format(feed_ids))
 
     opt_start_date = helper.get_arg(START_DATE, input_stanza_name)
-
+    obs_index = helper.get_arg("obs_index", input_stanza_name)
+    entity_index = helper.get_arg("entity_index", input_stanza_name)
     opt_domain = helper.get_arg(DOMAIN, input_stanza_name)
     opt_ip = helper.get_arg(IP, input_stanza_name)
     opt_uri = helper.get_arg(URI, input_stanza_name)
@@ -98,6 +99,8 @@ def collect_events(helper, event_writer):  # pylint: disable=R0915
     config_details[API_KEY] = api_key
     config_details[OUTGOING_FEEDS] = feed_ids
     config_details[START_DATE] = opt_start_date
+    config_details["obs_index"] = obs_index
+    config_details["entity_index"] = entity_index
 
     config_details[OBSERVABLE_INGEST_TYPES] = observable_ingest_types
     # Fetching proxy data

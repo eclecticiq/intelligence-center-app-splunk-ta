@@ -5,7 +5,7 @@ import os
 import json
 import splunk.admin as admin
 import splunk.entity as entity
-
+from requests.models import Response
 from solnlib import conf_manager
 from splunktaucclib.rest_handler.endpoint.validator import Validator
 from validator.logger_manager import setup_logging
@@ -315,17 +315,7 @@ class ValidateAccount(Validator):  # type: ignore
 
         response = self.send_request(url, api_token, verify_ssl, proxy_settings)
 
-        if not response:
-            return permissions, 404
-
-        logger.info(response.status_code)
-        if response.status_code == STATUS_CODE_401:
-            logger.info(REQUEST_UNAUTHORIZED)
-        elif response.status_code == STATUS_CODE_403:
-            logger.info(MISSING_PERMISSIONS)
-        elif response.status_code == STATUS_CODE_404:
-            logger.info(REQUEST_DOES_NOT_EXIST)
-        elif response.status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
+        if response.status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
             logger.info(
                 ERROR_IN_USER_PERMISSIONS.format(response.status_code, response.content)
             )
@@ -351,6 +341,7 @@ class ValidateAccount(Validator):  # type: ignore
         missing_permissions = []
         if status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
             logger.error(USER_UNAUTHORIZED)
+            logger.error("status_code={}".format(status_code))
         elif not permissions_of_user and status_code in [
             STATUS_CODE_200,
             STATUS_CODE_201,
@@ -411,14 +402,30 @@ class ValidateAccount(Validator):  # type: ignore
 
             response.raise_for_status()
             return response
+        except requests.exceptions.HTTPError as error:
+            # return_resp = Response()
+            if response.status_code == STATUS_CODE_401:
+                logger.info(REQUEST_UNAUTHORIZED)
+            elif response.status_code == STATUS_CODE_403:
+                logger.info(MISSING_PERMISSIONS)
+            elif response.status_code == STATUS_CODE_404:
+                logger.info("Got status code 404!")
+            # return_resp.status_code = response.status_code
+            # # return_resp._content = b'{}'
+            return response
         except requests.exceptions.SSLError as error:
             logger.error(SSL_ERROR_MSG.format(error_msg_prefix=ERROR_MSG))
             self.put_msg(error)
-            return {}
+            return response
+        except requests.exceptions.ConnectionError as error:
+            logger.error(INVALID_CREDS_LOG_ERROR_MSG.format(msg=ERROR_MSG, err=error))
+            resp = Response()
+            resp.status_code = 404
+            return resp
         except Exception as error:
             logger.error(INVALID_CREDS_LOG_ERROR_MSG.format(msg=ERROR_MSG, err=error))
             self.put_msg(INVALID_CREDS_ERROR_MSG.format(error_msg_prefix=ERROR_MSG))
-            return {}
+            return response
 
     def validate(self, value, data):  # pylint: disable=W0613
         """
@@ -431,43 +438,67 @@ class ValidateAccount(Validator):  # type: ignore
         :type proxy: dict
         :return True or False
         """
-        # Get proxy settings information
         try:
-            proxy_settings = self.get_proxy()
-        except Exception as exception:
-            logger.exception(PROXY_FETCHING_ERROR_LOG_MESSAGE.format(msg=exception))
-            self.put_msg(PROXY_FETCHING_ERROR_LOG_MESSAGE.format(msg=exception))
+            # Get proxy settings information
+            try:
+                proxy_settings = self.get_proxy()
+            except Exception as exception:
+                logger.exception(PROXY_FETCHING_ERROR_LOG_MESSAGE.format(msg=exception))
+                self.put_msg(PROXY_FETCHING_ERROR_LOG_MESSAGE.format(msg=exception))
+                return False
+
+            verify_ssl = False
+            # Set parameters
+            url = data[API_URL]
+            logger.info(data)
+
+            if not url.startswith(HTTPS):
+                self.put_msg(INVALID_URL_ERROR_MSG)
+                return False
+            api_token = data.get(API_KEY)
+
+            if data.get("certificate_validation") == "1":
+                verify_ssl = True
+
+            # Check if API token is there
+            if not api_token:
+                logger.error(API_KEY_REQUIRED_MSG)
+                self.put_msg(API_KEY_REQUIRED_MSG)
+                return False
+
+            missing_permissions, eiq_api_status_code = self.validate_user_permissions(
+                url, api_token, verify_ssl, proxy_settings
+            )
+            if eiq_api_status_code == STATUS_CODE_401:
+                self.put_msg(USER_UNAUTHORIZED)
+                logger.info(USER_UNAUTHORIZED)
+            elif eiq_api_status_code == STATUS_CODE_403:
+                self.put_msg(MISSING_PERMISSIONS)
+                logger.info(MISSING_PERMISSIONS)
+            elif eiq_api_status_code == STATUS_CODE_404:
+                self.put_msg("Bad Request! Please check URL or Proxy.")
+                logger.info("Bad Request! Please check URL or Proxy.")
+            elif eiq_api_status_code == 400:
+                self.put_msg("Error 400 !Bad Request.Check console logs .")
+                logger.info("Error 400 !Bad Request.Check console logs .")
+            elif eiq_api_status_code == 500:
+                self.put_msg("Error 500 !Internal Server error occured.")
+                logger.info("Error 500 !Internal Server error occured.")
+            # if eiq_api_status_code not in [200, 201]:
+            #     self.put_msg(USER_UNAUTHORIZED_MSG)
+            #     logger.info(USER_UNAUTHORIZED)
+            # elif eiq_api_status_code == STATUS_CODE_404:
+            #     self.put_msg(USER_UNAUTHORIZED_MSG)
+            
+            elif not missing_permissions and eiq_api_status_code in [200, 201]:
+                logger.info(CREDENTIALS_GIVEN_ARE_CORRECT)
+                return True
+            else:
+                self.put_msg(MISSING_PERMISSIONS.format(missing_permissions))
+                logger.info(MISSING_PERMISSIONS.format(missing_permissions))
             return False
-
-        verify_ssl = False
-        # Set parameters
-        url = data[API_URL]
-        logger.info(data)
-
-        if not url.startswith(HTTPS):
-            self.put_msg(INVALID_URL_ERROR_MSG)
+        except Exception as err:
+            logger.info(err)
+            self.put_msg("Something went wrong, Please check the logs!")
             return False
-        api_token = data.get(API_KEY)
-
-        if data.get("certificate_validation") == "1":
-            verify_ssl = True
-
-        # Check if API token is there
-        if not api_token:
-            logger.error(API_KEY_REQUIRED_MSG)
-            self.put_msg(API_KEY_REQUIRED_MSG)
-            return False
-
-        missing_permissions, eiq_api_status_code = self.validate_user_permissions(
-            url, api_token, verify_ssl, proxy_settings
-        )
-
-        if eiq_api_status_code not in [200, 201]:
-            self.put_msg(USER_UNAUTHORIZED_MSG)
-            logger.info(USER_UNAUTHORIZED)
-        elif not missing_permissions and eiq_api_status_code in [200, 201]:
-            logger.info(CREDENTIALS_GIVEN_ARE_CORRECT)
-            return True
-        else:
-            logger.info(MISSING_PERMISSIONS.format(missing_permissions))
-        return False
+# test

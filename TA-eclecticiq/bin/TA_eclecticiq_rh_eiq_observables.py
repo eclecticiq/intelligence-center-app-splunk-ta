@@ -33,6 +33,12 @@ fields = [
         ),
     ),
     field.RestField(
+        "obs_index", required=False, encrypted=False, default=None, validator=None
+    ),
+    field.RestField(
+        "entity_index", required=False, encrypted=False, default=None, validator=None
+    ),
+    field.RestField(
         "domain", required=False, encrypted=False, default=None, validator=None
     ),
     field.RestField(

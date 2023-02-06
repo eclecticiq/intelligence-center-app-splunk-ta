@@ -82,6 +82,7 @@ _KEY = "_key"
 _EIQ = "_eiq"
 LAST_UPDATED_AT_EIQ = "last_updated_at_eiq"
 OBSERVABLE_TIME_TO_LIVE = "observable_time_to_live"
+TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
 
 # config details
 OBSERVABLE_INGEST_TYPES = "observable_ingest_types"
@@ -128,8 +129,8 @@ TAXONOMIES = "taxonomies"
 SOURCE_RELIABILITY = "source_reliability"
 
 # Observable store
-OBSERVABLE_STORE_COLLECTION_NAME = "eiq_ioc_list"
-ENTITIES_STORE_COLLECTION_NAME = "eiq_entities_list"
+OBSERVABLE_STORE_COLLECTION_NAME = "test_eiq_obs"
+ENTITIES_STORE_COLLECTION_NAME = "test_eiq_entities"
 
 # Proxy Formatter paramters
 PROXY_TYPE_HTTPS = "https"
@@ -185,6 +186,7 @@ STR_TILT = "`"
 STR_EMPTY_JSON = "{}"
 STR_EMPTY = ""
 STR_COLON = ":"
+STR_COMMA = ","
 STR_AT_THE_RATE = "@"
 DOMAIN_SEPERATOR = "://"
 
@@ -202,3 +204,10 @@ PERMISSIONS = "permissions"
 
 MIN_INTERVAL = 60
 MAX_INTERVAL = 7776000
+
+
+# Search parameters to remove duplication
+EARLIEST_TIME = "earliest_time"
+LATEST_TIME = "latest_time"
+RESULT_COUNT = "resultCount"
+EXEC_MODE = "exec_mode"

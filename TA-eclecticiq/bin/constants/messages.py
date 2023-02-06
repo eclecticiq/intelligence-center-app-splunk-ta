@@ -12,7 +12,7 @@ SETUP_CALLED = "Setup called !"
 TEST_CONNECTION = "Test Connection !"
 SAVE_CONFIGURATION = "Save configuration!"
 TEST_CONNECTION_SUCCESSFULL = "Test Connection Successful."
-USER_UNAUTHORIZED = "Error! 500 not authorised ."
+USER_UNAUTHORIZED = "Error! 401 not authorised ."
 USER_UNAUTHORIZED_MSG = (
     "Error! 500 not authorised . Please check URL, API key and Certificate of the url."
 )
@@ -52,9 +52,11 @@ DATA_FOUND_FOR_FEED_ID_AND_TYPE = (
 )
 SEND_REQUEST = "Collector:Sending request with params {0}"
 RESPONSE_RECEIVED = "Response Received! {0}"
+RESPONSE_RECEIVED_IS = "Response received is {response_observables} and {response_entity}"
 OBSERVABLES_FOUND = "Collector:Observables found {0}"
 
 IN_GET_ENTITIES = "Collector:In get entities counter : {}"
+
 
 ADD_OBSERVABLES = "Collector:Added observables in long list. Total observables: {0} ."
 BREAK_LOOP = "Collector:Breaking from the loop! ."
@@ -93,7 +95,7 @@ BULK_LOAD_UPDATE_ERROR = "An error occurred during the attempt to add or update 
 
 BULK_LOAD_INTERNAL_ERROR = "Table name {0} Error. Code: {1} Text: {2}"
 BULK_LOAD_SUCCESSFULL = "Collector:Bulk upload to Reference Table {0} was successful ."
-
+SUCCESSFULLY_INSERTED_ENTITY = "Successfully inserted entity with id: {}"
 GET_REFERENCE_TABLE = "Getting reference table to check QRadar connection ."
 GET_REFERENCE_TABLES_PARAM_NOT_VALID = (
     "A request parameter is not valid for fetching reference tables"
@@ -176,6 +178,10 @@ ERROR_OCCURED_WHILE_RETREVING_TASK_STATUS = "An error occurred while attempting 
 TASK_STATUS_RETREIVED = (
     "The Delete Task Status: {0} has been retrieved with status code {1}"
 )
+INSERTING_ENTITY_WITH_ID = "inserting entity with id: {}"
+INSERTING_EVENT_WITH_ID =  "inserting the event with id: {}"
+NOT_INSERTING_EVENT_WITH_ID = "Not inserting event with id as it is already inserted: {}"
+NO_EVENTS_FOUND_INSERTING = "No events found with id: {}, Inserting this event"
 
 # Sighting
 NO_OBSERVABLES_FOUND = (

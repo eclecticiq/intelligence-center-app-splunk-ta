@@ -7,6 +7,8 @@ from constants.defaults import (
     ADDITIONAL_PARAM_NUMBER_OF_RETRIES,
     ADDITIONAL_PARAM_SLEEP_TIME,
     DEFAULT_LIMIT,
+    ENTITY_SOURCETYPE,
+    OBS_SOURCETYPE
 )
 
 from utils.convertors import get_current_time
@@ -22,12 +24,9 @@ from constants.general import (  # pylint: disable=C0412
     _KEY,
     API_KEY,
     CONFIDENCE,
-    CONFIDENCE_EIQ,
     COUNT,
-    CREATED_AT,
     DATA,
     DESC_BY_LAST_UPDATED_AT,
-    ENTITIES_STORE_COLLECTION_NAME,
     ENTITY_DATA_CONFIDENCE,
     ENTITY_DATA_TITLE,
     ENTITY_ID,
@@ -42,9 +41,7 @@ from constants.general import (  # pylint: disable=C0412
     FILTER_OUTGOING_FEEDS,
     HOST_NAME,
     ID,
-    LAST_UPDATED_AT,
     LIMIT,
-    MALICIOUSNESS,
     META,
     META_ESTIMATED_OBSERVED_TIME,
     META_ESTIMATED_THREAT_END_TIME,
@@ -55,7 +52,6 @@ from constants.general import (  # pylint: disable=C0412
     META_TLP,
     OBSERVABLE_IDS,
     OBSERVABLE_INGEST_TYPES,
-    OBSERVABLE_STORE_COLLECTION_NAME,
     OBSERVABLES,
     OFFSET,
     OUTGOING_FEEDS,
@@ -75,7 +71,9 @@ from constants.general import (  # pylint: disable=C0412
     TLP_COLOR,
     TYPE,
     UNDERSCORE,
-    VALUE,
+    LAST_UPDATED_AT_EIQ,
+    STR_COMMA,
+    STR_EMPTY
 )
 from constants.messages import (  # pylint: disable=C0412
     BREAK_LOOP,
@@ -86,8 +84,6 @@ from constants.messages import (  # pylint: disable=C0412
     DATA_FOUND_FOR_FEED_ID_AND_TYPE,
     ENDPOINT_CALLED,
     ENTITY_ID_AND_OBSERVABLE_IDS,
-    ENTITY_ID_MODIFIED,
-    ENTITY_ID_RECEIVED,
     GET_OBSERVABLE,
     GET_OBSERVABLE_DATA,
     IN_GET_ENTITIES,
@@ -103,6 +99,9 @@ from constants.messages import (  # pylint: disable=C0412
     RETRY_ERROR_MSG,
     SEND_REQUEST,
     WRITING_CHECKPOINT,
+    INSERTING_ENTITY_WITH_ID,
+    RESPONSE_RECEIVED_IS,
+    SUCCESSFULLY_INSERTED_ENTITY
 )
 
 
@@ -138,7 +137,8 @@ def retry():
                         )
                         return {}
 
-                    helper_method.log_warning(RETRY_ERROR_MSG.format(input=input_name))
+                    helper_method.log_warning(
+                        RETRY_ERROR_MSG.format(input=input_name))
                     time.sleep(sleeptime)
 
         return wrapper
@@ -226,10 +226,11 @@ class EIQApi:
                 ['domain','ip']
         """
         observable_types = config_details[OBSERVABLE_INGEST_TYPES]
-        ingest_types = [val for val in observable_types if observable_types[val]]
+        ingest_types = [
+            val for val in observable_types if observable_types[val]]
         return ingest_types
 
-    def formatted_data_to_load(self, observable_data, entity_id, config_details):
+    def formatted_data_to_load(self, observable_data, config_details):
         """Get formatted data for observable to load in kv store.
 
         :param config_details: configuration details from input page
@@ -242,113 +243,17 @@ class EIQApi:
         :rtype: str, dict
 
         """
-        columns_keys = [CREATED_AT, ID, LAST_UPDATED_AT, VALUE, TYPE]
-
-        observable_ingest_types = EIQApi.get_observable_ingest_types(config_details)
+        observable_ingest_types = EIQApi.get_observable_ingest_types(
+            config_details)
         observable_type = observable_data[TYPE]
 
         self.helper.log_info(OBSERVABLE_TYPE_RECEIVED.format(observable_type))
         obs_type = EIQApi.check_observable_type(observable_type)
         self.helper.log_info(OBSERVABLE_TYPE_MODIFIED.format(obs_type))
-        temp_dict = {}
         if obs_type in observable_ingest_types:
-            temp_dict[ENTITY_ID] = entity_id
-            for column, data in observable_data.items():
-
-                if column == META:
-                    temp_dict[CONFIDENCE_EIQ] = data[MALICIOUSNESS]
-                if column in columns_keys:
-                    if column == ID:
-                        temp_dict[_KEY] = str(data)
-                    temp_dict[column + _EIQ] = data
-
-            # self.helper.log_info(json.dumps(temp_dict))
-
-        return observable_type, temp_dict
-
-    def formatted_data_to_load_for_entities(self, item, outgoing_feed_id):
-        """Get formatted data for entities to load in kv store.
-
-        :param item: data for entities
-        :type item: dict
-        :param outgoing_feed_id: outgoing feed id
-        :type outgoing_feed_id: str
-        :return: entity record
-        :rtype: dict
-
-        """
-        self.helper.log_debug(item)
-        self.helper.log_debug(outgoing_feed_id)
-
-        entity_record = {}
-        entity_record[_KEY] = item.get(ID)
-        entity_record[ENTITY_TYPE] = item.get(TYPE)
-        entity_record[ENTITY_RELEVANCY] = item.get(RELEVANCY)
-        entity_record[ENTITY_SOURCES] = item.get(SOURCES)
-
-        entity_record[ENTITY_DATA_TITLE] = item.get(DATA).get(TITLE)
-        entity_record[ENTITY_DATA_CONFIDENCE] = item.get(DATA).get(CONFIDENCE)
-
-        entity_record[META_TLP] = item.get(META).get(TLP_COLOR)
-        entity_record[META_ESTIMATED_OBSERVED_TIME] = item.get(META).get(
-            ESTIMATED_OBSERVED_TIME
-        )
-
-        entity_record[META_ESTIMATED_THREAT_START_TIME] = item.get(META).get(
-            ESTIMATED_THREAT_START_TIME
-        )
-
-        entity_record[META_ESTIMATED_THREAT_END_TIME] = item.get(META).get(
-            ESTIMATED_THREAT_END_TIME
-        )
-
-        meta_tags = "None"
-
-        if item.get(META).get(TAGS):
-            meta_tags = ",".join(item.get(META).get(TAGS))
-
-        entity_record[META_TAGS] = meta_tags
-        entity_record["last_updated_at"] = item.get("last_updated_at")
-        entity_record[META_TAXONOMIES] = item.get(META).get(TAXONOMIES)
-        entity_record[META_SOURCE_RELIABILITY] = item.get(META).get(SOURCE_RELIABILITY)
-
-        entity_record[FEED_ID] = outgoing_feed_id
-
-        ids = ""
-        for observable_id in item[OBSERVABLES]:
-            ids += observable_id.split(SLASH)[-1] + ","
-
-        entity_record[OBSERVABLE_IDS] = ids
-
-        return entity_record
-
-    def update_observable_ids(self, response, entity_id):
-        """Update the observable store with the entity id for observable already present.
-
-        :param response: response list
-        :type response: list
-        :param entity_id: entity id
-        :type entity_id: str
-
-        :return: response
-        :rtype: boolean
-        """
-        content = response[0]
-        entity_id_received = content[ENTITY_ID]
-        self.helper.log_info(ENTITY_ID_RECEIVED.format(entity_id_received))
-
-        if entity_id != entity_id_received:
-            entity_id_new = entity_id_received + "," + entity_id
-            self.helper.log_info(ENTITY_ID_MODIFIED.format(entity_id_new))
-            content[ENTITY_ID] = entity_id_new
-
-            # update the observable_ids
-            splunk_api = SplunkApi(self.helper, self.event_writer)
-            response = splunk_api.update_record_in_collection(
-                content, OBSERVABLE_STORE_COLLECTION_NAME, content[_KEY]
-            )
-
-            return response
+            return observable_type, observable_data
+        else:
+            return observable_type, None
 
     @retry()
     def get_observable_data(
@@ -382,28 +287,19 @@ class EIQApi:
         counter = 1
 
         for observable_id in observable_ids:
-            response = self.check_observable_ids(observable_id)
-            entity_id_new = entity_id
+            self.helper.log_info(
+                PENDING_OBSERVABLES.format(len(observable_ids) - counter)
+            )
+            self.helper.log_info(COLLECTING_OBSERVABLE.format(counter))
+            self.helper.log_info(
+                GET_OBSERVABLE_DATA.format(observable_id, outgoing_feed_id)
+            )
 
-            if response:
-                response = self.update_observable_ids(response, entity_id)
-                if not response:
-                    return response
-
-            else:
-                self.helper.log_info(
-                    PENDING_OBSERVABLES.format(len(observable_ids) - counter)
-                )
-                self.helper.log_info(COLLECTING_OBSERVABLE.format(counter))
-                self.helper.log_info(
-                    GET_OBSERVABLE_DATA.format(observable_id, outgoing_feed_id)
-                )
-
-                headers = {"Authorization": f"Bearer {config_details[API_KEY]}"}
-                endpoint = EIQ_OBSERVABLES_BY_ID + SLASH + observable_id
-                url = config_details[HOST_NAME] + endpoint
-                self.helper.log_info(ENDPOINT_CALLED.format(url))
-
+            headers = {"Authorization": f"Bearer {config_details[API_KEY]}"}
+            endpoint = EIQ_OBSERVABLES_BY_ID + SLASH + observable_id
+            url = config_details[HOST_NAME] + endpoint
+            self.helper.log_info(ENDPOINT_CALLED.format(url))
+            try:
                 response = send_request(
                     self.helper,
                     url=url,
@@ -412,51 +308,43 @@ class EIQApi:
                     proxy=proxy_settings,
                     configs=config_details,
                 )
+            except Exception:
+                self.helper.log_info("Skipping this observable.")
+                continue
 
-                if response.status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
-                    self.helper.log_info(RESPONSE_RECEIVED.format(response.status_code))
-                    return False
+            if response.status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
+                self.helper.log_info(
+                    RESPONSE_RECEIVED.format(response.status_code))
+                return False
 
-                content = self.get_response_content(response)
-                data = content.get(DATA)
+            content = self.get_response_content(response)
+            data = content.get(DATA)
 
-                obs_type, observable_type_data = self.formatted_data_to_load(
-                    data, entity_id_new, config_details
+            obs_type, observable_type_data = self.formatted_data_to_load(
+                data, config_details
+            )
+
+            if observable_type_data:
+                self.helper.log_info(
+                    DATA_FOUND_FOR_FEED_ID_AND_TYPE.format(
+                        outgoing_feed_id, obs_type
+                    )
                 )
 
-                if observable_type_data:
-                    self.helper.log_info(
-                        DATA_FOUND_FOR_FEED_ID_AND_TYPE.format(
-                            outgoing_feed_id, obs_type
-                        )
-                    )
-                    splunk_api = SplunkApi(self.helper, self.event_writer)
-                    response = splunk_api.insert_record_in_collection(
-                        observable_type_data, OBSERVABLE_STORE_COLLECTION_NAME
-                    )
-                    if not response:
-                        return response
-                else:
-                    self.helper.log_info(NOT_LOADING_OBSERVABLE.format(obs_type))
-                counter += 1
+                splunk_api = SplunkApi(self.helper, self.event_writer)
+                OBSERVABLE_STORE_COLLECTION_NAME = config_details["obs_index"]
+                response = splunk_api.insert_record_in_collection(
+                    observable_type_data, OBS_SOURCETYPE, OBSERVABLE_STORE_COLLECTION_NAME, config_details[
+                        HOST_NAME]
+                )
+                if not response:
+                    return response
+            else:
+                self.helper.log_info(
+                    NOT_LOADING_OBSERVABLE.format(data["type"]))
+            counter += 1
 
         return True
-
-    def check_observable_ids(self, observable_id):
-        """Check whether the observable id is present in Splunk KV store.
-
-        :param observable_id: observable id key
-        :type observable_id: str
-
-        :return: response
-        :rtype: boolean
-        """
-        # get the observable id from KV store and append_entity id
-        splunk_api = SplunkApi(self.helper, self.event_writer)
-        response = splunk_api.get_record_in_collection(
-            OBSERVABLE_STORE_COLLECTION_NAME, observable_id
-        )
-        return response
 
     def get_entity_data(self, entities_data, feed_id, config_details, proxy_settings):
         """Get entity data and observable data and load formatted data in KV store.
@@ -479,25 +367,15 @@ class EIQApi:
 
             entity_id = data[ID]
             self.helper.log_debug(entity_id)
-            entity_data = self.formatted_data_to_load_for_entities(data, feed_id)
-            self.helper.log_debug(entity_data)
-
-            # check whether data already present , if present then update with latest
-            response = splunk_api.get_record_in_collection(
-                ENTITIES_STORE_COLLECTION_NAME, entity_id
+            self.helper.log_info(INSERTING_ENTITY_WITH_ID.format(entity_id))
+            data[OUTGOING_FEEDS] = feed_id
+            ENTITIES_STORE_COLLECTION_NAME = config_details["entity_index"]
+            response_entity = splunk_api.insert_record_in_collection(
+                data, ENTITY_SOURCETYPE, ENTITIES_STORE_COLLECTION_NAME, config_details[
+                    HOST_NAME]
             )
-
-            if response:
-                response_entity = splunk_api.update_record_in_collection(
-                    entity_data,
-                    ENTITIES_STORE_COLLECTION_NAME,
-                    entity_id,  # response_entity =
-                )
-            else:
-                response_entity = splunk_api.insert_record_in_collection(
-                    entity_data, ENTITIES_STORE_COLLECTION_NAME  # response_entity =
-                )
-
+            self.helper.log_info(
+                SUCCESSFULLY_INSERTED_ENTITY.format(entity_id))
             observable_ids = EIQApi.get_unique_observables(data)
 
             if observable_ids:
@@ -510,12 +388,12 @@ class EIQApi:
                     config_details[ADDITIONAL_PARAM_NUMBER_OF_RETRIES],
                     config_details[ADDITIONAL_PARAM_SLEEP_TIME],
                 )
-                # fetch data and insert in kv  #response_observables =
+                # fetch data and insert in splunk index
 
             if (not response_observables) and (not response_entity):
-                self.helper.log_info("here")
+
                 self.helper.log_info(
-                    f"Response received is {response_observables} and {response_entity}"
+                    RESPONSE_RECEIVED_IS
                 )
                 return False
 
@@ -573,8 +451,10 @@ class EIQApi:
             count = content.get(COUNT)
 
             if response.status_code not in [STATUS_CODE_200, STATUS_CODE_201]:
-                self.helper.log_info(RESPONSE_RECEIVED.format(response.status_code))
-                self.helper.log_info(RESPONSE_RECEIVED.format(str(response.content)))
+                self.helper.log_info(
+                    RESPONSE_RECEIVED.format(response.status_code))
+                self.helper.log_info(
+                    RESPONSE_RECEIVED.format(str(response.content)))
                 return observables, new_checkpoint, response
 
             data = content.get(DATA)  # Get entities for the lookup
@@ -609,7 +489,8 @@ class EIQApi:
         for outgoing_feed in outgoing_feeds_ids:
             self.helper.log_info(OUTGOING_FEED_ID.format(outgoing_feed))
 
-            checkpoint_name = config_details[STANZA] + UNDERSCORE + str(outgoing_feed)
+            checkpoint_name = config_details[STANZA] + \
+                UNDERSCORE + str(outgoing_feed)
             checkpoint = self.helper.get_check_point(checkpoint_name)
 
             start_date = config_details[START_DATE]
