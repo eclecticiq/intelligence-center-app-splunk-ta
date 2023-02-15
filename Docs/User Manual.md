@@ -50,14 +50,17 @@ Install the EclecticIQ Intelligence Centre Addon for Splunk
 2. Navigate to manage apps and click.
 
 ![Image](/Docs/screenshots/1.png)
+
 3. Click on Install app from File.
 
 ![Image](/Docs/screenshots/2.png)
+
 4. Install App From File pop-up window will appear.
 5. Choose the file and click on checkbox.
 6. Click on Upload button.
 
 ![Image](/Docs/screenshots/3.png)
+
 After installation, we can see the Addon in Apps dropdown list
 
 ![Image](/Docs/screenshots/4.png)
@@ -69,6 +72,7 @@ After installation, we can see the Addon in Apps dropdown list
 3. Click on the Restart Splunk button
 
 ![image](/Docs/screenshots/63.png)
+
 4. Click on OK in the Pop-up window 
 
 ![image](/Docs/screenshots/64.png) 
@@ -92,6 +96,7 @@ After installation of EclecticIQ Intelligence Centre Addon to set up the account
 6. Click on Add
 
 ![Image](/Docs/screenshots/5.png)
+
 7. Account should be created successfully
 
 ![Image](/Docs/screenshots/6.png)
@@ -177,9 +182,11 @@ After creating  the indexes.
 4. Click on Add.
 
 ![Image](/Docs/screenshots/10.png)
+
 5. Created input will be displayed in the Inputs Screen.
 
 ![Image](/Docs/screenshots/11.png)
+
 6. Go to Search Tab.Enter index=”<index name>” (Eg:index=”eiq_observables”)
 
 ![Image](/Docs/screenshots/12.png)
@@ -268,6 +275,7 @@ After creating  the indexes.
    11. Click on Review and Click on Submit
 
    ![image](/Docs/screenshots/69.png)   
+   
 3. Use the created HTTP Event Collector token or TCP or UDP in the EclecticIQ platform to send events to Splunk
 
 
@@ -297,9 +305,11 @@ After installation, we can see the Add-on in Apps dropdown list
 2. Navigate to manage apps and click
 
 ![Image](/Docs/screenshots/15.png)
+
 3. Click on Install app from File
 
 ![Image](/Docs/screenshots/16.png)
+
 4. Install App From File pop-up window will appear
 5. Choose the file and click on checkbox
 6. Click on Upload button
@@ -321,9 +331,11 @@ After installation of EclecticIQ Intelligence Centre Addon to set up the account
 6. Click on Add
 
 ![Image](/Docs/screenshots/19.png)
+
 7. Account should be created successfully
 
 ![Image](/Docs/screenshots/20.png)
+
 8. Go to Search Tab.Enter index=”<index name>” (Eg:index=”eiq_observables”)
 
 ![Image](/Docs/screenshots/21.png)
@@ -348,6 +360,7 @@ Clicking on save will create sightings in the EIQ platform with provided details
     * Sighting confidence: Confidence of sighting. Possible values: low, medium, high,unknown
     
    ![Image](/Docs/screenshots/23.png)
+   
 7. Go to Search tab and enter | inputlookup eiq_alerts_list. 
 8. Verify the created sightings. 
 
@@ -361,13 +374,19 @@ Clicking on save will create sightings in the EIQ platform with provided details
 4. Click on the down arrow(right side) of the value(IP/URL/Domain/Hash/Email).
 
 ![Image](/Docs/screenshots/25.png)
+
 5. Click on the EclecticIQ lookup observable.
+
 6. A pop-up window will appear.
 
 ![Image](/Docs/screenshots/26.png)
+
 7. Click on Create Sighting button.
+
 8. A pop-up window will appear to ask for the details below. 
+
 Clicking on save will create sightings in the EIQ platform with provided details.
+
     * Sighting Value: Value which is clicked
     * Sighting description: Description of sighting
     * Sighting title: Title of sighting
@@ -376,6 +395,7 @@ Clicking on save will create sightings in the EIQ platform with provided details
     * Sighting confidence: Confidence of sighting. Possible values: low, medium, high,unknown
 
    ![Image](/Docs/screenshots/27.png)
+   
 9. Sighting should be created successfully.
 10. Go to Search tab and enter | inputlookup eiq_alerts_list. 
    
