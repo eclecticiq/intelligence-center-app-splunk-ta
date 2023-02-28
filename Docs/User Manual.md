@@ -177,7 +177,7 @@ After creating  the indexes.
 * Observables Index: Select the observable index from dropdown
 * Entities Index: Select the entities index from dropdown
 * Outgoing feeds: Outgoing feeds ID’s to collect observables from
-* Select date: Date for observable collection to be entered in yyyy-mm-ddThh:mm:ss.SSSS format 
+* Select date: Date for observable collection to be entered in yyyy-mm-ddThh:mm:ss.SSSSSS format 
 * Select observable types: Observable types to ingest
 4. Click on Add.
 
