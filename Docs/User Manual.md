@@ -627,6 +627,11 @@ Follow the below steps to match the data and create an alert
 * From App dropdown select EclecticIQ Intelligence Centre App for Splunk
 * Go to Owner dropdown and click on All
 * Click on EclecticIQ ER alert
+* Click on Edit dropdown and select Edit search 
+* Adjust the query (Eg:If wants to match domain field in ER index with the IC indexes(entities & Observables), then the eval value in the query should be mentioned first priority as eiq_domain) and click on Save
+
+![Image](/Docs/screenshots/70.png)
+
 * Click on Edit dropdown and select Edit Schedule
 * Check on the "Schedule Report" checkbox in the Edit Schedule popup window
 * Select the Schedule and Time Range 
@@ -650,6 +655,7 @@ To create the sightings follow below steps
 ![Image](/Docs/screenshots/59.png)
 * Enter the unique name of the alert
 * Paste the copied search in the search query but remove last line (outputlookup command)
+* Adjust the query (Eg:If wants to match domain field in ER index with the IC indexes(entities & Observables), then the eval value in the query should be mentioned first priority as eiq_domain)
 * Adjust the schedule and trigger conditions(i.e, For each event)
 * Click on Add action 
 
