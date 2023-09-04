@@ -1,0 +1,330 @@
+<dashboard version='1.1'>
+  <label>Observables DB Info</label>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="feed_token">
+      <label>Select feed</label>
+      <choice value="*">All</choice>
+      <prefix>feed_id_eiq="</prefix>
+      <suffix>"</suffix>
+      <fieldForLabel>feed_name</fieldForLabel>
+      <fieldForValue>feed_id</fieldForValue>
+      <search>
+        <query>| inputlookup eiq_feeds_list</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="multiselect" token="token_meta">
+      <label>Tags/Taxonomy</label>
+      <fieldForLabel>mvmetafield</fieldForLabel>
+      <fieldForValue>mv_value</fieldForValue>
+      <search>
+        <query>| inputlookup eiq_ioc_list where $feed_token$
+| table meta.taxonomy_eiq, meta.tags_eiq | rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq
+| eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) | table mvmetafield
+| makemv delim=";" mvmetafield
+| mvexpand mvmetafield | dedup mvmetafield | eval mv_value="like(mvmetafield, \"%".mvmetafield."%\")"</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+      <delimiter> OR </delimiter>
+      <choice value="(1=1)">All</choice>
+      <prefix>| where </prefix>
+      <default>(1=1)</default>
+      <initialValue>(1=1)</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Total Count of Observables in Splunk</title>
+      <single>
+        <search>
+          <query>| inputlookup eiq_ioc_list where entity.type_eiq="*" $feed_token$ | rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ | stats count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x65a637"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">0</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Observables Distribution</title>
+      <table>
+        <search>
+          <query>| inputlookup eiq_ioc_list | stats count by feed_id_eiq
+| join feed_id_eiq type=left 
+[| inputlookup eiq_feeds_list | table feed_id, feed_name, update_strategy | rename feed_id as feed_id_eiq ] 
+| rename feed_id_eiq as "Feed ID", feed_name as "Feed Name", update_strategy as "Update Strategy", count as Count
+| sort -Count
+| fillnull value="N/A - this feed isn't mentioned in settings"
+| table "Feed ID", "Feed Name", "Update Strategy", Count</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="totalsRow">false</option>
+        <format type="color" field="Update Strategy">
+          <colorPalette type="map">{"N/A - this feed isn't mentioned in settings":#F8BE34}</colorPalette>
+        </format>
+        <format type="color" field="Feed Name">
+          <colorPalette type="map">{"N/A - this feed isn't mentioned in settings":#F8BE34}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Downloaded Observables by time</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_ioc_list where $feed_token$
+| eval _time=strptime(timestamp_eiq, "%Y-%m-%d %H:%M") 
+| addinfo
+| where _time&gt;=info_min_time and _time&lt;info_max_time
+| lookup eiq_feeds_list feed_id AS feed_id_eiq
+| rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| timechart count by feed_name</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Downloaded Observables by Time and Type</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_ioc_list where $feed_token$
+| eval _time=strptime(timestamp_eiq, "%Y-%m-%d %H:%M") 
+| addinfo
+| where _time&gt;=info_min_time and _time&lt;info_max_time
+| lookup eiq_feeds_list feed_id AS feed_id_eiq | rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| timechart count by type_eiq</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Count of Observables by Type</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_ioc_list where $feed_token$ | rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| stats count by type_eiq | sort - count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+      <table id="eiq_table_highlight_00">
+        <search>
+          <query>| inputlookup eiq_ioc_list where $feed_token$
+| rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| stats count by type_eiq 
+| sort - count 
+| rename type_eiq as "Observable type" count as Count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_blank">search?q=| inputlookup eiq_ioc_list where entity.type_eiq=indicator&amp;earliest=-15m&amp;latest=now</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Count of Observables by Tag/Taxonomy</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_ioc_list where entity.type_eiq=indicator $feed_token$
+| rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| makemv delim=";" mvmetafield
+| mvexpand mvmetafield 
+| stats count by mvmetafield</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+      <table id="eiq_table_highlight_02">
+        <search>
+          <query>| inputlookup eiq_ioc_list where entity.type_eiq=indicator $feed_token$
+| rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| makemv delim=";" mvmetafield
+| mvexpand mvmetafield
+| stats count by mvmetafield | sort - count | rename mvmetafield AS "Tag/Taxonomy"</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Count of Observables by Classification/Confidence</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_ioc_list where entity.type_eiq=indicator $feed_token$
+| rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| rename meta.classification_eiq AS class, meta.confidence_eiq AS confid 
+| eval sort_cond=class." - ".confid 
+| fillnull value="N/A" sort_cond 
+| stats count by sort_cond</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+      <table>
+        <search>
+          <query>| inputlookup eiq_ioc_list where $feed_token$
+| rename meta.taxonomy_eiq AS meta_taxonomy_eiq, meta.tags_eiq AS meta_tags_eiq | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$ 
+| rename meta.classification_eiq AS Classification, meta.confidence_eiq AS Confidence 
+| fillnull value="N/A" Classification Confidence
+| stats count by Classification Confidence
+| sort - count</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

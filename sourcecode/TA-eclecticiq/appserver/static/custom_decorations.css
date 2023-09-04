@@ -1,0 +1,59 @@
+drilldown>tbody>tr>td {
+    color: #a8538a;;
+}
+
+drilldown>tbody>tr>td:hover {
+    color: #fff;
+}
+
+#eiq_table_highlight_00 tr {
+  color: #A8538A;
+  font-weight: bold;
+ }
+#eiq_table_highlight_00 tr:hover td {
+  color: #fff;
+  background: #A8538A;
+ }
+#eiq_table_highlight_00 a {
+  color: #A8538A;
+  text-decoration: none;
+ }
+
+#eiq_table_highlight_01 tr {
+  color: #A8538A;
+  font-weight: bold;
+ }
+#eiq_table_highlight_01 tr:hover td {
+  color: #fff;
+  background: #A8538A;
+ }
+
+#eiq_table_highlight_02 tr {
+  color: #A8538A;
+  font-weight: bold;
+ }
+#eiq_table_highlight_02 tr:hover td {
+  color: #fff;
+  background: #A8538A;
+ }
+
+input li li>a {
+  color: #A8538A;
+  text-decoration: none;
+ }
+
+li>a:hover {
+  color : #fff;
+  background-color: #A8538A;
+ }
+
+a {
+  color: #A8538A;
+  text-decoration: none;
+}
+
+.button { 
+  color: #fff;
+  background-color: #A8538A;
+}
+

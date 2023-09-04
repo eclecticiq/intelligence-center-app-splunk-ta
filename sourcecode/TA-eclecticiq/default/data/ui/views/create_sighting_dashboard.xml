@@ -1,0 +1,84 @@
+<dashboard isDashboard='true'
+           script='setup_page.js'
+           stylesheet='setup_page.css'
+           hideTitle='true'
+           version='1.1'>
+
+<row>
+<panel>
+  <html>
+    <row>
+        <panel>
+            <html>
+                <div id='main_container'>
+                    <h1>Create Sighting Page</h1>
+                    <div>
+                        <span class="span">Sighting Value <span style="color: Red;">*</span></span>
+                        <div class='text'>
+                            <input type='Sighting Value' id='sighting_value' placeHolder="Sighting Value"  value="Sighting value"></input>
+                        </div>
+                        <br />
+                        <span class="span">Sighting Desciption <span style="color: Red;">*</span></span>
+                        <div class='text'>
+                            <input type='Sighting Desc' id='sighting_desc' placeHolder="Sighting Description" value="Splunk created Sighting." ></input>
+                        </div>
+                        <br />
+                        <span class="span">Sighting Title <span style="color: Red;">*</span></span>
+                        <div class='text'>
+                            <input type='Sighting Title' id='sighting_title' placeHolder="Sighting Title"></input>
+                        </div>
+                        <br />
+                        <span class="span">Sighting tags delimted by comma <span style="color: Red;">*</span></span>
+                        <div class='text'>
+                            <input type='Sighting Tags' id='sighting_tags' placeHolder="Sighting Tags"  value="Splunk sighting, Manually generated"></input>
+                        </div>
+                        <br />
+
+                      <div class="col-lg-2 col-md-2 col-sm-6 col-xs-9">
+                        <div class='span'>
+                        <label style="color: black;">Sighting type <span style="color: Red;">*</span>
+                        </label>
+                        </div>
+                        <select class="form-control" form="configure-form" name="sighting_type" id="sighting_type">
+                            <option value="ipv4" >ipv4</option>
+                            <option value="ipv6" >ipv6</option>
+                            <option value="domain">domain</option>
+                            <option value="uri">uri</option>
+                            <option value="email">email</option>
+                            <option value="hash-md5">hash-md5</option>
+                            <option value="hash-sha1">hash-sha1</option>
+                            <option value="hash-sha256">hash-sha256</option>
+                            <option value="hash-sha512">hash-sha512</option>
+                            <option value="port">port</option>
+                        </select>
+                      </div>
+                      <br />
+
+                      <div class="col-lg-2 col-md-2 col-sm-6 col-xs-9">
+                        <div class='span'>
+                        <label style="color: black;">Confidence Level  <span style="color: Red;">*</span> </label>
+                        </div>
+                        <select class="form-control" form="configure-form" name="confidence_level" id="confidence_level">
+                            <option value="Unknown" >unknown</option>
+                            <option value="Low">low</option>
+                            <option value="Medium">medium</option>
+                            <option value="High">high</option>
+                        </select>
+                      </div>
+                      <br />
+                              <!-- Complete Setup button will call the completeSetup() function
+                             within javascript/setup_page.js -->
+                        <button id='setup_button' >Save</button>
+                        <br/>
+                        <p id="loading" style="color:blue"></p>
+                        <p id="msg"></p>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+            </html>
+        </panel>
+    </row>
+</dashboard>

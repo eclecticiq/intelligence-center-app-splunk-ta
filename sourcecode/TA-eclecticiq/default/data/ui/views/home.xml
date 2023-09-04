@@ -1,0 +1,317 @@
+<dashboard version='1.1' stylesheet="custom_decorations.css">
+  <search id="baseSearch_eiq_feeds">
+    <query>| inputlookup eiq_ioc_list</query>
+    <earliest>-15m</earliest>
+    <latest>now</latest>
+  </search>
+  <label>Home</label>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="timeRange">
+      <label>Time Range</label>
+      <default>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Total Count of Observables</title>
+      <single>
+        <search base="baseSearch_eiq_feeds">
+          <query>| stats count</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x65a637"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">0</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Alerts by Severity</title>
+      <single>
+        <title>High</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list
+| addinfo 
+| where event_time&gt;=info_min_time AND event_time&lt;info_max_time
+| table event_time, meta_relevancy_eiq 
+| eval _time=event_time 
+| eval relevancy=case('meta_relevancy_eiq' &lt;= 0.5, "LOW", 'meta_relevancy_eiq' &gt; 0.5 AND 'meta_relevancy_eiq' &lt;= 0.85, "MEDIUM", 'meta_relevancy_eiq' &gt; 0.85, "HIGH") 
+| where relevancy="HIGH" 
+| timechart count by relevancy</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <title>Medium</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list 
+| addinfo 
+| where event_time&gt;=info_min_time AND event_time&lt;info_max_time
+| table event_time, meta_relevancy_eiq 
+| eval _time=event_time 
+| eval relevancy=case('meta_relevancy_eiq' &lt;= 0.5, "LOW", 'meta_relevancy_eiq' &gt; 0.5 AND 'meta_relevancy_eiq' &lt;= 0.85, "MEDIUM", 'meta_relevancy_eiq' &gt; 0.85, "HIGH") 
+| where relevancy="MEDIUM" 
+| timechart count by relevancy</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <title>Low</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list 
+| addinfo 
+| where event_time&gt;=info_min_time AND event_time&lt;info_max_time
+| table event_time, meta_relevancy_eiq 
+| eval _time=event_time 
+| eval relevancy=case('meta_relevancy_eiq' &lt;= 0.5, "LOW", 'meta_relevancy_eiq' &gt; 0.5 AND 'meta_relevancy_eiq' &lt;= 0.85, "MEDIUM", 'meta_relevancy_eiq' &gt; 0.85, "HIGH") 
+| where relevancy="LOW" 
+| timechart count by relevancy</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alerts by Source</title>
+      <single>
+        <title>Domain</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list | addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time  | search type_eiq=domain OR type_eiq=host | timechart span=1d count</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <title>URI</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list | addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time  | search type_eiq=uri | timechart span=1d count</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <title>Hash</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list | addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time  | search type_eiq=hash* | timechart span=1d count</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <title>IP</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list | addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time  | search type_eiq=ipv4 | timechart span=1d count</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <title>Email</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list | addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time  | search type_eiq=email | timechart span=1d count</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alerts by Type</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_alerts_list 
+| addinfo 
+| where event_time&gt;=info_min_time AND event_time&lt;info_max_time
+| table event_time, type_eiq 
+| eval _time=event_time 
+| timechart count by type_eiq</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Alerts by Severity</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_alerts_list
+| addinfo 
+| where event_time&gt;=info_min_time AND event_time&lt;info_max_time
+| table event_time, meta_relevancy_eiq 
+| eval _time=event_time 
+| eval relevancy=case('meta_relevancy_eiq' &lt;= 0.5, "LOW", 'meta_relevancy_eiq' &gt; 0.5 AND 'meta_relevancy_eiq' &lt;= 0.85, "MEDIUM", 'meta_relevancy_eiq' &gt; 0.85, "HIGH") 
+| timechart count by relevancy</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Detected Observables by Types</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_alerts_list | eval _time=event_time | addinfo | where _time&gt;=info_min_time and _time&lt;info_max_time 
+| stats count by type_eiq</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Detected Observables by Taxonomy/Tag</title>
+      <chart>
+        <search>
+          <query>| inputlookup eiq_alerts_list 
+| eval _time=event_time 
+| addinfo 
+| where _time&gt;=info_min_time and _time&lt;info_max_time | table meta_taxonomy_eiq, meta_tags_eiq
+| eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq)
+| makemv delim=";" mvmetafield  | stats count by mvmetafield</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Detected Observables and Metadata by Sourcetype</title>
+      <table>
+        <title>Click table row to show more information</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list 
+| eval _time=event_time 
+| addinfo 
+| where _time&gt;=info_min_time and _time&lt;info_max_time 
+| bin span=1h _time 
+| eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq)
+| makemv delim=";" mvmetafield
+| stats sparkline count, values(mvmetafield) AS val_meat_eiq, values(type_eiq) AS val_type_eiq, dc(event_host) AS dc_eh by event_sourcetype 
+| table event_sourcetype, val_type_eiq, val_meat_eiq, dc_eh, sparkline, count 
+| sort - count 
+| eval token_sourcetype=event_sourcetype
+| rename event_sourcetype AS "Event Sourcetype", val_type_eiq AS "Observable Type", val_meat_eiq AS "Taxonomy/Tag", count AS Count, dc_eh AS "Distinct Count of Hosts"</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_blank">/app/TA-eclecticiq/eiq_matches?form.token_sourcetype=$row.token_sourcetype$&amp;form.timeRange.earliest=$earliest$&amp;form.timeRange.latest=$latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</dashboard>

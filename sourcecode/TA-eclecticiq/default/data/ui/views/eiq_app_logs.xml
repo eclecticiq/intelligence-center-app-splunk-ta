@@ -1,0 +1,70 @@
+<dashboard version='1.1'>
+  <label>Application logs</label>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="timeRange">
+      <label>Time Range</label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="log_level">
+      <label>Log Level</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <valuePrefix>log_level="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <fieldForLabel>log_level</fieldForLabel>
+      <fieldForValue>log_level</fieldForValue>
+      <search>
+        <query>index=_internal (sourcetype=splunkd EclecticIQ log_level="*") OR sourcetype=EclecticIQ:scripts
+| stats count by log_level</query>
+        <earliest>$timeRange.earliest$</earliest>
+        <latest>$timeRange.latest$</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="sourcetype">
+      <label>Log Sourcetype</label>
+      <default>EclecticIQ:scripts</default>
+      <prefix>sourcetype=</prefix>
+      <choice value="*">All</choice>
+      <fieldForLabel>sourcetype</fieldForLabel>
+      <fieldForValue>sourcetype</fieldForValue>
+      <search>
+        <query>index=_internal sourcetype=splunkd OR sourcetype="EclecticIQ:scripts" | stats count by sourcetype</query>
+        <earliest>$timeRange.earliest$</earliest>
+        <latest>$timeRange.latest$</latest>
+      </search>
+    </input>
+    <input type="text" token="search">
+      <label>Search</label>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table id="eiq_table_highlight_00">
+        <search>
+          <query>index=_internal ((sourcetype=splunkd EclecticIQ) OR sourcetype=EclecticIQ:scripts) $log_level$ $sourcetype$ $search$
+| eval time=strftime(_time, "%F %T")
+| eval message=if(isnull(message), event_message, message)
+| table time sourcetype log_level message
+| sort - time| rename log_level as Level time as Time message as Message</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>
