@@ -307,7 +307,7 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
 
             list_to_add.append(data_to_add)
 
-        if es_ingest:
+        if es_ingest == "1":
             es_ti_ingestion_status = es_ti_add(service, es_ti_batches_prepare(list_to_add))
 
         for item in list_to_add:
@@ -369,7 +369,7 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
             for item in list_to_add:
                 collection.data.batch_save(item)
 
-            if es_ingest:
+            if es_ingest == "1":
                 es_ti_ingestion_status = es_ti_add(service, es_ti_batches_prepare(list_to_add))
 
         if list_to_delete:
@@ -377,7 +377,7 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
                 collection.data.batch_save(item)
             collection.data.delete(json.dumps({"type_eiq": "DELETE_RAW"}))
 
-            if es_ingest:
+            if es_ingest == "1":
                 es_ti_ingestion_status = es_ti_remove(bind, es_ti_batches_prepare_remove(list_to_delete_es))
 
         time_taken = time.time() - start_time
