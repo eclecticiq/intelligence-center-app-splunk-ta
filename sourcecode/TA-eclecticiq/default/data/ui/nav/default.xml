@@ -1,0 +1,18 @@
+<nav color="#2d323a">
+  <view name="home" default="true"/>
+  <collection label="Dashboards">
+        <a href="eiq_matches_by_ip">Matched IP's</a>
+        <a href="eiq_matches_by_domain">Matched Domains and URLs</a>
+        <a href="eiq_matches_by_filehashes">Matched File hashes</a>
+   		<a href="eiq_matches_by_email">Matched Emails</a>
+    <a href="eiq_matches">All Matches</a>
+  </collection>
+  <collection label="Information">
+    <a href="eiq_db_info">Observables DB Info</a>
+    <a href="setup_view_dashboard">Edit app settings</a>
+    <a href="eiq_app_logs">Application Logs</a>
+    <a href="https://www.eclecticiq.com/" target="_blank">About EclecticIQ</a>
+    <a href="mailto:splunk@eclecticiq.com" target="_blank">Contact Developers</a>
+  </collection>
+  <view name="search" />
+</nav>

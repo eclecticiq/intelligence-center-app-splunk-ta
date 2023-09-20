@@ -1,0 +1,86 @@
+
+# Application-level permissions
+
+[]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+
+[views]
+access = read : [ * ], write : [ admin,  sc_admin]
+
+[alert_actions/create_eclecticiq_sighting]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+owner = nobody
+
+[alerts]
+export = system
+
+### EVENT TYPES
+
+[eventtypes]
+export = system
+
+### PROPS
+
+[props]
+export = system
+
+### TRANSFORMS
+
+[transforms]
+export = system
+
+
+### LOOKUPS
+
+[lookups]
+export = system
+
+
+### VIEWSTATES: even normal users should be able to create shared viewstates
+
+[viewstates]
+access = read : [ * ], write : [ * ]
+export = system
+
+### Set the owner for the kvstore collection
+[collections]
+owner = nobody
+export = system
+
+### Set macro access
+[macros/eiq_sightings_search]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody
+
+[macros/eiq_dm_alert_domain]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody
+
+[macros/eiq_dm_alert_email]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody
+
+[macros/eiq_dm_alert_hash]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody
+
+[macros/eiq_dm_alert_src_dst]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody
+
+[macros/eiq_dm_alert_url]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody
+
+[workflow_actions/EclecticIQ_entity_lookup]
+access = read : [ * ], write : [ admin, sc_admin, power ]
+export = system
+owner = nobody

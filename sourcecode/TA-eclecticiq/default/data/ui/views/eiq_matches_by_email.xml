@@ -1,0 +1,241 @@
+<dashboard version='1.1'>
+  <label>Matches by Email</label>
+  <fieldset submitButton="false">
+    <input type="time" token="timeRange">
+      <label>Time Range</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="token_sourcetype">
+      <label>Sourcetype</label>
+      <fieldForLabel>event_sourcetype</fieldForLabel>
+      <fieldForValue>event_sourcetype</fieldForValue>
+      <search>
+        <query>| inputlookup eiq_alerts_list | stats count by event_sourcetype | table event_sourcetype</query>
+        <earliest>$timeRange.earliest$</earliest>
+        <latest>$timeRange.latest$</latest>
+      </search>
+      <choice value="*">All</choice>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <valuePrefix>event_sourcetype="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="token_relevancy">
+      <label>Relevancy</label>
+      <choice value="&gt;=0.80">0.80 +</choice>
+      <choice value="&gt;=0.60">0.60 +</choice>
+      <choice value="&gt;=0.30">0.30 +</choice>
+      <choice value="">All</choice>
+      <prefix>| where meta_relevancy_eiq</prefix>
+      <default></default>
+    </input>
+    <input type="multiselect" token="token_meta">
+      <label>Tags/Taxonomy</label>
+      <fieldForLabel>mvmetafield</fieldForLabel>
+      <fieldForValue>mv_value</fieldForValue>
+      <search>
+        <query>| inputlookup eiq_alerts_list | table meta_taxonomy_eiq, meta_tags_eiq
+| eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) | table mvmetafield
+| makemv delim=";" mvmetafield
+| mvexpand mvmetafield | dedup mvmetafield | eval mv_value="like(mvmetafield, \"%".mvmetafield."%\")"</query>
+        <earliest>$timeRange.earliest$</earliest>
+        <latest>$timeRange.latest$</latest>
+      </search>
+      <delimiter> OR </delimiter>
+      <choice value="">All</choice>
+      <prefix>| where </prefix>
+      <default></default>
+      <initialValue></initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Email Alerts by Severity</title>
+      <chart>
+        <title>Select time on the graph for filtering</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list where (alert_field=receiver OR alert_field=sender $token_sourcetype$) $token_relevancy$ | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$
+| addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time
+| eval _time=event_time 
+| eval relevancy=case('meta_relevancy_eiq' &lt;= 0.5, "LOW", 'meta_relevancy_eiq' &gt; 0.5 AND 'meta_relevancy_eiq' &lt;= 0.85, "MEDIUM", 'meta_relevancy_eiq' &gt; 0.85, "HIGH")  
+| timechart span=1h count by relevancy</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+        </search>
+        <selection>
+          <set token="dd_time.earliest">$start$</set>
+          <set token="dd_time.latest">$end$</set>
+        </selection>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alerts by Sender Observable</title>
+      <chart>
+        <title>Select time on the graph for filtering</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list where (alert_field=sender $token_sourcetype$ ) $token_relevancy$ | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$
+| addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time | timechart count by src</query>
+          <earliest>$dd_time.earliest$</earliest>
+          <latest>$dd_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <selection>
+          <set token="dd_source_time.earliest">$start$</set>
+          <set token="dd_source_time.latest">$end$</set>
+        </selection>&gt;<option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <table>
+        <title>Click for more info below</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list where (alert_field=sender $token_sourcetype$ ) $token_relevancy$ | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$
+| addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval time=strftime(event_time,"%Y-%m-%d %H:%M:%S")
+| table time, event_host, event_sourcetype, value_eiq, meta_relevancy_eiq, event_time, event_index, event_hash, event_time_1 | sort + time
+| rename event_host AS "Host", event_sourcetype AS "Sourcetype", value_eiq AS "Observable Value", meta_relevancy_eiq AS "Relevancy"</query>
+          <earliest>$dd_source_time.earliest$</earliest>
+          <latest>$dd_source_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <fields>["Host","Sourcetype","Observable Value","Relevancy"]</fields>
+        <drilldown>
+          <condition field="*">
+            <set token="search_value">$row.Observable Value$</set>
+            <set token="search_field">sender</set>
+            <set token="search_field_disply">source</set>
+            <set token="search_event_time">$row.event_time$</set>
+            <set token="search_event_time_1">$row.event_time_1$</set>
+            <set token="search_event_index">$row.event_index$</set>
+            <set token="search_event_hash">$row.event_hash$</set>
+            <set token="search_event_sourcetype">$row.Sourcetype$</set>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Alerts by Reciever Observable</title>
+      <chart>
+        <title>Select time on the graph for filtering</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list where (alert_field=receiver $token_sourcetype$ ) $token_relevancy$ | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$
+| addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval _time=event_time | timechart count by dest</query>
+          <earliest>$dd_time.earliest$</earliest>
+          <latest>$dd_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <selection>
+          <set token="dd_dest_time.earliest">$start$</set>
+          <set token="dd_dest_time.latest">$end$</set>
+        </selection>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <table>
+        <title>Click for more info below</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list where (alert_field=receiver $token_sourcetype$ ) $token_relevancy$ | eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq) $token_meta$
+| addinfo | where event_time&gt;=info_min_time and event_time&lt;info_max_time | eval time=strftime(event_time,"%Y-%m-%d %H:%M:%S")
+| table time, event_host, event_sourcetype, value_eiq, meta_relevancy_eiq, event_time, event_index, event_hash, event_time_1 | sort + time | rename event_host AS "Host", event_sourcetype AS "Sourcetype", value_eiq AS "Observable Value", meta_relevancy_eiq AS "Relevancy"</query>
+          <earliest>$dd_dest_time.earliest$</earliest>
+          <latest>$dd_dest_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <fields>["Host","Sourcetype","Observable Value","Relevancy"]</fields>
+        <drilldown>
+          <condition field="*">
+            <set token="search_value">$row.Observable Value$</set>
+            <set token="search_field">receiver</set>
+            <set token="search_field_disply">destination</set>
+            <set token="search_event_time">$row.event_time$</set>
+            <set token="search_event_time_1">$row.event_time_1$</set>
+            <set token="search_event_index">$row.event_index$</set>
+            <set token="search_event_hash">$row.event_hash$</set>
+            <set token="search_event_sourcetype">$row.Sourcetype$</set>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>More info about $search_field_disply$ $search_value$</title>
+      <table id="details" depends="$search_value$">
+        <title>Click on the row to view the detail in the EclecticIQ platform</title>
+        <search>
+          <query>| inputlookup eiq_alerts_list where (alert_field=$search_field$ AND value_eiq=$search_value$ AND event_time="$search_event_time$" AND event_hash="$search_event_hash$")
+| lookup eiq_ioc_list value_eiq OUTPUTNEW meta.estimated_threat_end_time_eiq AS threat_end_time, meta.estimated_threat_start_time_eiq AS threat_start_time, entity.type_eiq, meta.relevancy_eiq, meta.source_reliability_eiq, meta.tlp_eiq, source.name_eiq
+| eval mvmetafield=case((isnotnull(meta_taxonomy_eiq) and isnotnull(meta_tags_eiq)), meta_taxonomy_eiq.";".meta_tags_eiq,isnotnull(meta_taxonomy_eiq), meta_taxonomy_eiq, isnotnull(meta_tags_eiq), meta_tags_eiq)
+| eval event_time=strftime(event_time,"%Y-%m-%d %H:%M") | eval threat_end_time=replace(threat_end_time, "^(\d{4}\-\d{2}\-\d{2})(T)(\d{2}\:\d{2})(.+)","\1 \3") | eval threat_start_time=replace(threat_start_time, "^(\d{4}\-\d{2}\-\d{2})(T)(\d{2}\:\d{2})(.+)","\1 \3")
+| table event_time event_host event_sourcetype type_eiq alert_field value_eiq entity_title_eiq src dest threat_start_time threat_end_time meta_relevancy_eiq mvmetafield value_url_eiq
+| rename event_time AS "Event Time" event_sourcetype AS "Sourcetype", event_host AS "Host", type_eiq AS "Observable Type", alert_field AS "Alert Field", value_eiq AS "Observable Value", entity_title_eiq AS "Observable Title", src AS "Event Src", dest AS "Event Dst", threat_start_time AS "Threat Start Time", threat_end_time AS "Threat End Time", meta_relevancy_eiq AS "Relevancy", mvmetafield AS "Tags/Taxonomy"
+| sort + "Event Time"</query>
+          <earliest>$timeRange.earliest$</earliest>
+          <latest>$timeRange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <fields>["Event Time","Host","Sourcetype","Observable Type","Alert Field","Observable Value","Observable Title","Event Src","Event Dst","Threat Start Time","Threat End Time","Relevancy","Tags/Taxonomy"]</fields>
+        <drilldown target="_blank">
+          <condition field="*">
+            <link>$row.value_url_eiq|n$</link>
+          </condition>
+        </drilldown>
+      </table>
+      <event id="details2" depends="$search_value$">
+        <title>Raw Splunk event</title>
+        <search>
+          <query>index=$search_event_index$ sourcetype=$search_event_sourcetype$ earliest=$search_event_time$ latest=$search_event_time_1$ | eval dst_hash=md5(_raw) | search dst_hash="$search_event_hash$" OR "$search_value$" </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="list.drilldown">full</option>
+        <option name="raw.drilldown">full</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">0</option>
+        <option name="type">list</option>
+        <drilldown>
+          <link target="_blank">$row.link|n$</link>
+        </drilldown>
+      </event>
+    </panel>
+  </row>
+</dashboard>
