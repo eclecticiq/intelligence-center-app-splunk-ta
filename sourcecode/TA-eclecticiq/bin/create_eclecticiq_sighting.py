@@ -8,8 +8,11 @@ import sys
 import json
 import classes.eiq_logger as eiq_logger
 import classes.splunk_info as si
+import splunklib.binding as bind
+import xml.etree.ElementTree as ET
 
 from classes.eiq_api import EclecticIQ_api as eiqlib
+
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -66,6 +69,19 @@ if __name__ == "__main__":
 
         # make sure that VERIFYSSL is a boolean True or False
         VERIFYSSL = True if str(VERIFYSSL) == "1" else False
+
+        binding = bind.connect(token=sessionKey, owner="nobody")
+        xml_reply_root = ET.fromstring(str(binding.get('/services/server/info')["body"]))
+        instance_type_key = xml_reply_root.findall(".//*[@name='instance_type']")
+        
+        try:
+            instance_type = instance_type_key[0].text
+        except IndexError:
+            instance_type = "on-prem"
+
+        if instance_type == "cloud":
+            VERIFYSSL = True
+        binding.logout()
 
         # sign in to the platform
         eiq_api = eiqlib(BASEURL, EIQ_VERSION, "", PASSWORD,

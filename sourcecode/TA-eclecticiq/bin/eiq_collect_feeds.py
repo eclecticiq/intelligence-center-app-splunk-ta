@@ -27,6 +27,7 @@ import splunklib.client as client
 import splunklib.binding as binding
 import classes.splunk_info as si
 import classes.eiq_logger as eiq_logger
+import xml.etree.ElementTree as ET
 
 from classes.eiq_api import EclecticIQ_api as eiqlib
 
@@ -481,6 +482,18 @@ if __name__ == '__main__':
 
         LOOKUPS_PATH = os.path.normpath(
             splunk_paths['app_root_dir'] + os.sep + "lookups")
+
+        binding = binding.connect(token=sessionKey, owner="nobody", app=app_name)
+        xml_reply_root = ET.fromstring(str(binding.get('/services/server/info')["body"]))
+        instance_type_key = xml_reply_root.findall(".//*[@name='instance_type']")
+        try:
+            instance_type = instance_type_key[0].text
+        except IndexError:
+            instance_type = "on-prem"
+
+        if instance_type == "cloud":
+            VERIFYSSL = True
+        binding.logout()
 
         api = eiqlib(BASEURL, EIQ_VERSION, "", PASSWORD,
                      VERIFYSSL, PROXY_IP, PROXY_USERNAME,

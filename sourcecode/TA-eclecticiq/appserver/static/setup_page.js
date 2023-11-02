@@ -90,12 +90,6 @@ require([
     console.log("setup_page.js completeSetup called");
     $("#msg").text("");
 
-    if(creds.length<1 || creds[0]["eiq"] == undefined){
-        $("#msg").css('color', 'red');
-        $("#msg").text("Please save the configrations first.");
-        return
-    };
-
     $("#setup_button").prop('disabled', true);
     $("#loading").text("Loading...");
 
