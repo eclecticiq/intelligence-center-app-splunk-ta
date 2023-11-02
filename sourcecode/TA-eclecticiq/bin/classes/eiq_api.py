@@ -166,7 +166,6 @@ class EclecticIQ_api(object):
         else:
             return logger
 
-
     def set_verify_ssl(self, ssl_status):
         if ssl_status in ["1", "True", "true", True]:
             return True
@@ -1162,10 +1161,10 @@ class EclecticIQ_api(object):
                 related_entity_parsed_response = json.loads(r.text)
                     
                 if self.eiq_api_version == "v1":
-                    relation["relation_title"] = i["meta"]["title"]
+                    relation["relation_title"] = i["meta"].get("title")
                     relation["entity_type"] = related_entity_parsed_response["data"]["type"]
                 elif self.eiq_api_version == "v2":
-                    relation["relation_title"] = i["data"]["key"]
+                    relation["relation_title"] = i["data"].get("key")
                     relation["entity_type"] = related_entity_parsed_response["data"]["data"]["type"]
                                 
                 relation["entity_title"] = related_entity_parsed_response["data"]["data"]["title"]                

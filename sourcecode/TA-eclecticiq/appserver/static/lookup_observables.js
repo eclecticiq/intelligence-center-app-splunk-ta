@@ -106,7 +106,6 @@ require([
         console.log("lookup_observables endpoint called.");
     }
     response.then(function (result) {
-        console.log("Response Received.")
         $("#loading").text("")
         if (result.data.length>1)
         {
@@ -158,7 +157,7 @@ require([
                                     </thead> <tbody>`
 
             var tbody = ""
-            data = data.replace(/'/g, '"');
+            data = data.replace(/'/g, '\\"');
             var data_json = JSON.parse(data)
 
             for (var item in data_json) {
