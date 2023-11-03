@@ -7,6 +7,7 @@
 - [Prerequisites](#prerequisites)
 - [Features](#features)
 - [Install](#install)
+    - [Install from Splunkbase](#install-from-splunkbase)
     - [Install from file](#install-from-file)
 - [Configure](#configure)
     - [Set up outgoing feeds on EclecticIQ Intelligence Center](#set-up-outgoing-feeds-on-eclecticiq-intelligence-center)
@@ -49,11 +50,6 @@ allows you to connect
 [EclecticIQ Intelligence Center](https://www.eclecticiq.com/products/intelligence-center)
 with Splunk.
 
-For technical support or queries,
-please open a ticket on the
-EclecticIQ customer portal:
-https://support.eclecticiq.com/.
-
 ## Prerequisites
 
 * Splunk Enterprise 8.x, 9.x, or Splunk Cloud.
@@ -80,10 +76,17 @@ https://support.eclecticiq.com/.
 
 ## Install
 
+### Install from Splunkbase
+
+1. Log in to Splunk Enterprise.
+1. From the navigation menu, select **Apps > Find more Apps**.
+1. Search for "EclecticIQ Intelligence Center App for Splunk".
+1. Select Install.
+
 ### Install from file
 
-1. Download the `tar.gz` archive from
-   [the latest release](https://github.com/eclecticiq/intelligence-center-app-splunk-ta/releases).
+1. Download the app archive from
+   [Splunkbase](https://splunkbase.splunk.com/app/6567).
 1. Log in to Splunk Enterprise.
 1. From the navigation menu, select **Apps > Manage Apps**.
 1. Select **Install app from file**.
@@ -179,6 +182,46 @@ Optional settings:
 | Send the following sightings types | When the `eiq_send_sightings.py` data input script is enabled and an alert from `eiq_alerts` is triggered, only events containing IoCs of these types are sent to EclecticIQ Intelligence Center as sighting entities.
 | Scripts Log Level | Log verbosity for logs collected for this app. See [Access the logs](#access-the-logs). |
 
+<!--
+## Objects added
+
+| Object | type |
+| - | - |
+| Create sighting | workflow-actions | 
+| EclecticIQ alert | savedsearch | 
+| EclecticIQ tstats Threat Intelligence alert - Domain | savedsearch | 
+| EclecticIQ tstats Threat Intelligence alert - Email | savedsearch | 
+| EclecticIQ tstats Threat Intelligence alert - Hash | savedsearch | 
+| EclecticIQ tstats Threat Intelligence alert - Source/Destination | savedsearch | 
+| EclecticIQ tstats Threat Intelligence alert - URL | savedsearch | 
+| EclecticIQ_entity_lookup | workflow-actions | 
+| Lookup observable | workflow-actions | 
+| create_eclecticiq_sighting | modalerts | 
+| create_sighting_dashboard | views | 
+| default | nav | 
+| eiq_alerts | collections-conf | 
+| eiq_alerts_list | transforms-lookup | 
+| eiq_app_logs | views | 
+| eiq_db_info | views | 
+| eiq_dm_alert_domain | macros | 
+| eiq_dm_alert_email | macros | 
+| eiq_dm_alert_hash | macros | 
+| eiq_dm_alert_src_dst | macros | 
+| eiq_dm_alert_url | macros | 
+| eiq_feeds_list | collections-conf | 
+| eiq_feeds_list | transforms-lookup | 
+| eiq_ioc_list | transforms-lookup | 
+| eiq_ioc_list | collections-conf | 
+| eiq_matches | views | 
+| eiq_matches_by_domain | views | 
+| eiq_matches_by_email | views | 
+| eiq_matches_by_filehashes | views | 
+| eiq_matches_by_ip | views | 
+| eiq_sightings_search | macros | 
+| home | views | 
+| lookup_observables | views | 
+| setup_view_dashboard | views | 
+-->
 
 ## Enable input scripts
 

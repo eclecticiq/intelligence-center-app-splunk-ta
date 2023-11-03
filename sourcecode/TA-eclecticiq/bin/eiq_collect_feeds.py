@@ -200,7 +200,7 @@ def es_ti_batches_prepare(list_to_add):
         elif i['type_eiq'] == "domain":
             result["ip"].append({"domain":i["value_eiq"], "_key": i["_key"]})
         elif i['type_eiq'] == "email":
-            result["http"].append({"src_user":i["value_eiq"], "_key": i["_key"]})
+            result["email"].append({"src_user":i["value_eiq"], "_key": i["_key"]})
 
     return result
 
@@ -215,7 +215,11 @@ def es_ti_add(service, es_list_to_add):
 
     for i in es_list_to_add:
         if (len(es_list_to_add[i])) > 0:
-            result = service.post("/services/data/threat_intel/item/" + endpoints[i], body={"item": json.dumps(es_list_to_add[i])})
+            try:
+                result = service.post("/services/data/threat_intel/item/" + endpoints[i], body={"item": json.dumps(es_list_to_add[i])})
+            except Exception as e:
+                script_logger.error("Adding IOC to ES failed, value: " + str(i) + ". Exception: " + str(e))                
+
 
     return result
 
@@ -237,11 +241,11 @@ def es_ti_batches_prepare_remove(list_to_remove):
         elif i['type_eiq'] == "domain":
             result["ip"].append({"_key": i["_key"]})
         elif i['type_eiq'] == "email":
-            result["http"].append({"_key": i["_key"]})
+            result["email"].append({"_key": i["_key"]})
 
     return result
 
-def es_ti_remove(bind, es_list_to_remove):
+def es_ti_remove(service, es_list_to_remove):
     endpoints = {
         "ip":"ip_intel",
         "file":"file_intel",
@@ -253,14 +257,17 @@ def es_ti_remove(bind, es_list_to_remove):
     for i in es_list_to_remove:
         if (len(es_list_to_remove[i])) > 0:
             for k in es_list_to_remove[i]:
-                result = bind.delete("/services/data/threat_intel/item/" + endpoints[i] + "/" + str(k["_key"]))
+                try:
+                    result = service.delete("/services/data/threat_intel/item/" + endpoints[i] + "/" + str(k["_key"]))
+                except Exception as e:
+                    script_logger.error("Remove of IOC " + str(k) + " failed. Exception: " + str(e))
 
     return result
 
 def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
     global app_name, sessionKey, splunk_info
     service = client.connect(token=sessionKey, owner="nobody", app=app_name)
-    bind = binding.connect(token=sessionKey, owner="nobody", app=app_name)
+    #bind = binding.connect(token=sessionKey, owner="nobody", app=app_name)
     collection_name = "eiq_ioc_list"
     collection = service.kvstore[collection_name]
 
@@ -379,7 +386,7 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
             collection.data.delete(json.dumps({"type_eiq": "DELETE_RAW"}))
 
             if es_ingest == "1":
-                es_ti_ingestion_status = es_ti_remove(bind, es_ti_batches_prepare_remove(list_to_delete_es))
+                es_ti_ingestion_status = es_ti_remove(service, es_ti_batches_prepare_remove(list_to_delete_es))
 
         time_taken = time.time() - start_time
         script_logger.debug(
@@ -493,7 +500,6 @@ if __name__ == '__main__':
 
         if instance_type == "cloud":
             VERIFYSSL = True
-        binding.logout()
 
         api = eiqlib(BASEURL, EIQ_VERSION, "", PASSWORD,
                      VERIFYSSL, PROXY_IP, PROXY_USERNAME,
