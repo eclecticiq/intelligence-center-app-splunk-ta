@@ -7,6 +7,7 @@
 - [Prerequisites](#prerequisites)
 - [Features](#features)
 - [Install](#install)
+    - [Install from Splunkbase](#install-from-splunkbase)
     - [Install from file](#install-from-file)
 - [Configure](#configure)
     - [Set up outgoing feeds on EclecticIQ Intelligence Center](#set-up-outgoing-feeds-on-eclecticiq-intelligence-center)
@@ -49,11 +50,6 @@ allows you to connect
 [EclecticIQ Intelligence Center](https://www.eclecticiq.com/products/intelligence-center)
 with Splunk.
 
-For technical support or queries,
-please open a ticket on the
-EclecticIQ customer portal:
-https://support.eclecticiq.com/.
-
 ## Prerequisites
 
 * Splunk Enterprise 8.x, 9.x, or Splunk Cloud.
@@ -80,10 +76,17 @@ https://support.eclecticiq.com/.
 
 ## Install
 
+### Install from Splunkbase
+
+1. Log in to Splunk Enterprise.
+1. From the navigation menu, select **Apps > Find more Apps**.
+1. Search for "EclecticIQ Intelligence Center App for Splunk".
+1. Select Install.
+
 ### Install from file
 
-1. Download the `tar.gz` archive from
-   [the latest release](https://github.com/eclecticiq/intelligence-center-app-splunk-ta/releases).
+1. Download the app archive from
+   [Splunkbase](https://splunkbase.splunk.com/app/6567).
 1. Log in to Splunk Enterprise.
 1. From the navigation menu, select **Apps > Manage Apps**.
 1. Select **Install app from file**.
@@ -178,7 +181,6 @@ Optional settings:
 | Sightings query | See [Sightings query](#sightings-query).
 | Send the following sightings types | When the `eiq_send_sightings.py` data input script is enabled and an alert from `eiq_alerts` is triggered, only events containing IoCs of these types are sent to EclecticIQ Intelligence Center as sighting entities.
 | Scripts Log Level | Log verbosity for logs collected for this app. See [Access the logs](#access-the-logs). |
-
 
 ## Enable input scripts
 
