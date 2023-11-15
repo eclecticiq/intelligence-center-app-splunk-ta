@@ -107,7 +107,6 @@ require([
     }
     response.then(function (result) {
         $("#loading").text("");
-        console.log(result);
         if (result.data.length>1)
         {
         $("#mytable").append(createTable(result['data']))
