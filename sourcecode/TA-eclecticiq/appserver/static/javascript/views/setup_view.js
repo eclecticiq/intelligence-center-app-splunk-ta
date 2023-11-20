@@ -204,7 +204,7 @@ define(
 
                 var text_properties_to_update = fields;
 
-                var check_box = ["eiq_baseurl", "eiq_version", "feedslist", "sourcegroupname"];
+                var check_box = ["eiq_baseurl", "eiq_version", "sourcegroupname"];
 
                 try {
 

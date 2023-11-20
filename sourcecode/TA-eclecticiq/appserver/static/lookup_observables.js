@@ -106,7 +106,7 @@ require([
         console.log("lookup_observables endpoint called.");
     }
     response.then(function (result) {
-        $("#loading").text("")
+        $("#loading").text("");
         if (result.data.length>1)
         {
         $("#mytable").append(createTable(result['data']))
@@ -116,7 +116,7 @@ require([
     });
 
     function createTable(data) {
-        if (data == "False"){            
+        if (data == "False" || data == "false"){            
             return "No Observable found."
         } else if (data.startsWith("It was an error")) {
             return data
@@ -127,30 +127,30 @@ require([
                                         <tr role="row" style="background-color: #42b598 !important;">
                                             <th class="sorting_asc" tabindex="0" scope="col"
                                                 rowspan="1" colspan="1" aria-sort="ascending"
-                                                 style="width: 700px; background-color: #42b598 !important;">
+                                                 style="width: 10%; background-color: #42b598 !important; word-break: break-word;">
                                                 Title</th>
                                             <th class="sorting_asc" tabindex="0" scope="col"
                                                 rowspan="1" colspan="1" aria-sort="ascending"
-                                                 style="width: 700px; background-color: #42b598 !important;">
+                                                 style="width: 25%; background-color: #42b598 !important; word-break: break-word;">
                                                 Description</th>
                                                  <th class="sorting_asc" tabindex="0" scope="col"
                                                 rowspan="1" colspan="1" aria-sort="ascending"
-                                                 style="width: 700px; background-color: #42b598 !important;">
+                                                 style="width: 10%; background-color: #42b598 !important; word-break: break-word;">
                                                  
                                                  Source Name</th>
                                                  <th class="sorting_asc" tabindex="0" scope="col"
                                                 rowspan="1" colspan="1" aria-sort="ascending"
-                                                 style="width: 700px; background-color: #42b598 !important;">
+                                                 style="width: 10%; background-color: #42b598 !important; word-break: break-word;">
 
                                                 Tags</th>
                                                  <th class="sorting_asc" tabindex="0" scope="col"
                                                 rowspan="1" colspan="1" aria-sort="ascending"
-                                                 style="width: 700px; background-color: #42b598 !important;">
+                                                 style="width: 10%; background-color: #42b598 !important; word-break: break-word;">
 
                                                  Threat Start</th>
                                                  <th class="sorting_asc" tabindex="0" scope="col"
                                                 rowspan="1" colspan="1" aria-sort="ascending"
-                                                 style="width: 700px; background-color: #42b598 !important;">
+                                                 style="width: 35%; background-color: #42b598 !important; word-break: break-word;">
 
                                                 Observables</th>
                                         </tr>
@@ -158,6 +158,7 @@ require([
 
             var tbody = ""
             data = data.replace(/'/g, '\\"');
+
             var data_json = JSON.parse(data)
 
             for (var item in data_json) {
@@ -165,11 +166,11 @@ require([
 
                     var str_htm = "<tr>"
                     str_htm = str_htm + "<td>" + data_json[item]["entity_title"] + "</td>"
-                    str_htm = str_htm + "<td>" + data_json[item]["description"] + "</td>"
+                    str_htm = str_htm + "<td style='word-break: break-word;'>" + data_json[item]["description"] + "</td>"
                     str_htm = str_htm + "<td>" + data_json[item]["source_name"] + "</td>"
-                    str_htm = str_htm + "<td>" + data_json[item]["tags_list"] + "</td>"
+                    str_htm = str_htm + "<td style='word-break: break-word;'>" + data_json[item]["tags_list"] + "</td>"
                     str_htm = str_htm + "<td>" + data_json[item]["created_at"] + "</td>"
-                    start = "<td><table  class=\"table table-striped tableChart chart1Top\"  style=\"width: 100%; color: black;  border: 1px solid #dddddd;height: 30px;\" id=\"chart\"><thead><th role=\"row\" style=\"background-color: #42b598;\">Kind</th><th role=\"row\" style=\"background-color: #42b598;\">Value</th><th role=\"row\" style=\"background-color: #42b598;\">Maliciousness</th></thead><tbody>"
+                    start = "<td><table  class=\"table table-striped tableChart chart1Top\"  style=\"width: 100%; word-break: break-word; color: black; border: 1px solid #dddddd;height: 30px;\" id=\"chart\"><thead><th role=\"row\" style=\"background-color: #42b598;\">Kind</th><th role=\"row\" style=\"background-color: #42b598; word-break: break-word;\">Value</th><th role=\"row\" style=\"background-color: #42b598;\">Maliciousness</th></thead><tbody>"
 
                     for (var item1 in data_json[item]['observables_list']) {
                         if (item1 < data_json[item]['observables_list'].length) {
