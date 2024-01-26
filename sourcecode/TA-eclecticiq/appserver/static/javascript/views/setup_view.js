@@ -1,5 +1,24 @@
 "use strict";
 
+function promisify(f, manyArgs = false) {
+  return function (...args) {
+    return new Promise((resolve, reject) => {
+      function callback(err, ...results) { // our custom callback for f
+        if (err) {
+          reject(err);
+        } else {
+          // resolve with all callback results if manyArgs is specified
+          resolve(manyArgs ? results : results[0]);
+        }
+      }
+
+      args.push(callback);
+
+      f.call(this, ...args);
+    });
+  };
+}
+
 define(
     ["backbone", "jquery", "splunkjs/splunk"],
     function(Backbone, jquery, splunk_js_sdk) {
@@ -282,6 +301,7 @@ define(
                     }
 
                     this.display_error_output(error_messages_to_display);
+                    console.log(error_messages_to_display);
                 }
             },
 
@@ -363,10 +383,10 @@ define(
                 app_name,
             ) {
                 var splunk_js_sdk_apps = splunk_js_sdk_service.apps();
-                await splunk_js_sdk_apps.fetch();
+                await promisify(splunk_js_sdk_apps.fetch)();
 
                 var current_app = splunk_js_sdk_apps.item(app_name);
-                current_app.reload();
+                await promisify(current_app.reload)();
             },
 
             // ----------------------------------
