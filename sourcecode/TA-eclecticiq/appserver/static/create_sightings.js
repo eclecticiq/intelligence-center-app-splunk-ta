@@ -12,7 +12,6 @@ const pwRealm = "TA-eclecticiq_realm";
 require([
     "jquery", "splunkjs/splunk", "splunkjs/mvc"
 ], function ($, splunkjs, mvc) {
-    console.log("setup_page.js require(...) called");
     $("#setup_button").prop('disabled', false);
     tokens = mvc.Components.get("default");
     var value = tokens.get("q")
@@ -24,49 +23,12 @@ require([
     var field = tokens.get("field_name")
     var event_hash = tokens.get("raw") 
     var http = new splunkjs.SplunkWebHttp();
-    
-    // console.log("sessionkey = "+splunkjs.Context)
-
     var service = new splunkjs.Service(
         http,
         appNamespace,
     );
-    // console.log("Sessionkey: ", $.cookie("splunk_sessionkey"));
-    var storagePasswords = service.storagePasswords();
-    var creds = [];
-    var response = storagePasswords.fetch(
-        function (err, storagePasswords) {
-            if (err) { console.warn(err); }
-            else {
-                response = storagePasswords.list();
-                var my_list = [];
-                for (var i = 0; i < response.length; i++) {
-                    var uname = ""
-                    var api_key = ""
-                    if (response[i]["_acl"]["app"] == "TA-eclecticiq") {
-                        if(response[i]["_properties"]["realm"].endsWith("settings") == true){
-                            uname = "proxy_pass"
-                        }
-                        else{
-                            uname = "eiq"
-                        }
-                        api_key = response[i]["_properties"]["clear_password"];
-                        if(api_key.includes("splunk_cred_sep")==true){
-                            continue;
-                        }
-                        var temp = {};
-                        temp[uname] = api_key;
-                        my_list.push(temp);
-                    }
-                }
-                localStorage.setItem("response", JSON.stringify(my_list))
-            }
-        });
-    var creds = JSON.parse(localStorage.getItem("response"))
 
-    localStorage.removeItem("response")
     $("#sighting_value").val(value)
-    console.log("Sighting of : " + String(value))
     $("#sighting_title").val("Sighting of : " + String(value))
 
     // Register .on( "click", handler ) for "Complete Setup" button
@@ -87,13 +49,11 @@ require([
 
     // onclick function for "Complete Setup" button from setup_page_dashboard.xml
  async function completeSetup() {
-    console.log("setup_page.js completeSetup called");
     $("#msg").text("");
 
     $("#setup_button").prop('disabled', true);
     $("#loading").text("Loading...");
 
-    // Value of password_input from setup_page_dashboard.xml
     const sighting_value = $('#sighting_value').val();
     const sighting_desc = $('#sighting_desc').val();
     const sighting_title = $('#sighting_title').val();

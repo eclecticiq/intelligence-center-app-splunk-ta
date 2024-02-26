@@ -13,10 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
-import logging.handlers
 import os
 import sys
+import logging
 
 if sys.version_info >= (3, 0):
     import configparser as ConfigParser
@@ -30,6 +29,8 @@ class Splunk_Info(object):
     def __init__(self, sessionKey=None, app="-", logger=None):
         self.script_dir = os.path.dirname(os.path.abspath(__file__))
         self.splunk_paths = self.give_splunk_paths(self.script_dir)
+
+
 
         custom_conf_file = (
             str(app.lower()) + ".conf" if app is not "-"
@@ -47,9 +48,10 @@ class Splunk_Info(object):
             log_format = logging.Formatter(
                 '%(asctime)s loglevel=%(levelname)s file=%(filename)s '
                 'line=%(lineno)d function=%(funcName)s message="%(message)s"')
+
             log_file = os.path.normpath(
-                os.path.dirname(os.path.abspath(__file__)) +
-                os.sep + "splunk_info.log")
+                self.splunk_paths['app_root_dir'] +
+                os.sep + 'logs' + os.sep + 'splunk_info.log')
 
             handler = logging.handlers.RotatingFileHandler(
                 filename=log_file,
@@ -231,9 +233,10 @@ class Splunk_Info(object):
                 ['admin', 'passwords'],
                 namespace=app,
                 owner='nobody',
-                sessionKey=self.sessionKey
+                sessionKey=self.sessionKey,
+                count='-1'
             )
-            #self.logger.debug("entities: " + str(entities))
+            self.logger.info("entities: " + str(len(entities)))
         except Exception:
             self.logger.exception(
                 "Could not get " + str(app) + " credentials from splunk.")
