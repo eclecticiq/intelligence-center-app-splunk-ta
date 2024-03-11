@@ -1,5 +1,5 @@
 <dashboard isDashboard='true'
-           script='setup_page.js'
+           script='create_sightings.js'
            stylesheet='setup_page.css'
            hideTitle='true'
            version='1.1'>

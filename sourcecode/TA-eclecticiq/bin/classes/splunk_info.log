@@ -1,2 +1,0 @@
-2023-08-28 23:28:57,376 loglevel=CRITICAL file=splunk_info.py line=77 function=__init__ message="Did not receive a session key from splunkd. Please enable passAuth in inputs.conf for this script."
-2023-08-28 23:28:57,376 loglevel=CRITICAL file=splunk_info.py line=77 function=__init__ message="Did not receive a session key from splunkd. Please enable passAuth in inputs.conf for this script."

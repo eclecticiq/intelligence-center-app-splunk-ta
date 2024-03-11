@@ -12,7 +12,6 @@ const pwRealm = "TA-eclecticiq_realm";
 require([
     "jquery", "splunkjs/splunk", "splunkjs/mvc",
 ], function ($, splunkjs, mvc) {
-    console.log("lookup_observables.js require(...) called");
     tokens = mvc.Components.get("default");
     var value = tokens.get("q")
     var index = tokens.get("index")
@@ -30,39 +29,6 @@ require([
         http,
         appNamespace,
     );
-    var storagePasswords = service.storagePasswords();
-    var creds = [];
-    var response = storagePasswords.fetch(
-        function (err, storagePasswords) {
-            if (err) { console.warn(err); }
-            else {
-                response = storagePasswords.list();
-                var my_list = [];
-                for (var i = 0; i < response.length; i++) {
-                    var uname = ""
-                    var api_key = ""
-                    if (response[i]["_acl"]["app"] == "TA-eclecticiq") {
-                        if (response[i]["_properties"]["realm"].endsWith("settings") == true) {
-                            uname = "proxy_pass"
-                        }
-                        else {
-                            uname = "eiq"
-                        }
-                        api_key = response[i]["_properties"]["clear_password"];
-                        if (api_key.includes("splunk_cred_sep") == true) {
-                            continue;
-                        }
-                        var temp = {};
-                        temp[uname] = api_key;
-                        my_list.push(temp);
-                    }
-                }
-                localStorage.setItem("response", JSON.stringify(my_list))
-            }
-        });
-    var creds = JSON.parse(localStorage.getItem("response"))
-
-    localStorage.removeItem("response")
 
     data = {}
     data['value'] = value
@@ -93,8 +59,6 @@ require([
 
     // function for "Lookup observables" 
     async function completeSetup(data) {
-        console.log("lookup_observables.js completeSetup called");
-
         try {
             response = makeRequest('/services/lookup_observables', data);
 
@@ -102,8 +66,6 @@ require([
         } catch (e) {
             console.log(e)
         }
-
-        console.log("lookup_observables endpoint called.");
     }
     response.then(function (result) {
         $("#loading").text("");
