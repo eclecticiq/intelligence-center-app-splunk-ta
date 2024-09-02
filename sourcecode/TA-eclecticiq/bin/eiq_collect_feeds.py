@@ -262,10 +262,11 @@ def es_ti_remove(service, es_list_to_remove):
 
     return result
 
-def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
+
+def export_csv_to_kv(feed_id, text, update_strategy, count=0, diff_flag=False, es_ingest=False):
     global app_name, sessionKey, splunk_info
     service = client.connect(token=sessionKey, owner="nobody", app=app_name)
-    #bind = binding.connect(token=sessionKey, owner="nobody", app=app_name)
+    # bind = binding.connect(token=sessionKey, owner="nobody", app=app_name)
     collection_name = "eiq_ioc_list"
     collection = service.kvstore[collection_name]
 
@@ -278,12 +279,15 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
 
     list_to_add = []
 
-    if 'diff' not in csvreader.fieldnames:
-        # If there is no "diff" column in the CSV
-        # So the update method is set to "replace", this means we
-        # delete everything from this feed and then recreate it.
+    if diff_flag:
+        # if crated_at field was changed, we need to delete all data and
+        # ingest all blocks again
+        collection.data.delete(json.dumps({"feed_id_eiq": str(feed_id)}))
 
-        if count == 0:
+    if update_strategy in ["REPLACE", "APPEND"]:
+        # If the update strategy is REPLACE, this means we
+        # delete everything from this feed and then recreate it.
+        if update_strategy == "REPLACE" and count == 0:
             # we delete data from KV only before first block is downloaded
 
             script_logger.debug(
@@ -340,11 +344,6 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
         list_to_delete = []
         list_to_delete_es = []
 
-        if diff_flag:
-            # if crated_at field was changed, we need to delete all data and
-            # ingest all blocks again
-            collection.data.delete(json.dumps({"feed_id_eiq": str(feed_id)}))
-
         for row in csvreader:
             # Loop through the rows and see what must be done
             if sys.version_info >= (3, 0):
@@ -370,7 +369,6 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
                 list_to_delete.append({"_key": kv_key, "type_eiq": "DELETE_RAW"})
                 list_to_delete_es.append({"_key": kv_key, "type_eiq": row['type']})
 
-
         if list_to_add:
             for item in list_to_add:
                 collection.data.batch_save(item)
@@ -394,7 +392,7 @@ def export_csv_to_kv(feed_id, text, count=0, diff_flag=False, es_ingest=False):
                 time_taken) + " seconds")
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
 
     sessionKey = sys.stdin.readline().strip()
     splunk_info = si.Splunk_Info(sessionKey)
@@ -539,7 +537,7 @@ if __name__ == '__main__':
                     # update last_ingested field in meta KV
 
                     data_from_block = api.download_block_list(block)
-                    export_csv_to_kv(item['id'], data_from_block, counter, flag, ES_TI_INGEST)
+                    export_csv_to_kv(item['id'], data_from_block, item["update_strategy"], counter, flag, ES_TI_INGEST)
                     counter += 1
                     flag = False
                     update_state_meta_kv(item['id'], block, "last_ingested")
