@@ -921,7 +921,7 @@ class EclecticIQ_api(object):
                 path=API_PATHS[self.eiq_api_version]['feed_content_blocks'] + "{0}/runs/latest".format(feed['id']))
 
             data = r.json()['data']['content_blocks']
-            if feed_last_run['last_ingested'] == data[-1]:
+            if data and feed_last_run['last_ingested'] == data[-1]:
                 self.eiq_logging.info(
                     "Received list contains {0} blocks for feed id={1}.".format(len(data), feed['id']))
                 return []
