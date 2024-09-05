@@ -279,11 +279,6 @@ def export_csv_to_kv(feed_id, text, update_strategy, count=0, diff_flag=False, e
 
     list_to_add = []
 
-    if diff_flag:
-        # if crated_at field was changed, we need to delete all data and
-        # ingest all blocks again
-        collection.data.delete(json.dumps({"feed_id_eiq": str(feed_id)}))
-
     if update_strategy in ["REPLACE", "APPEND"]:
         # If the update strategy is REPLACE, this means we
         # delete everything from this feed and then recreate it.
@@ -343,7 +338,11 @@ def export_csv_to_kv(feed_id, text, update_strategy, count=0, diff_flag=False, e
         list_to_add = []
         list_to_delete = []
         list_to_delete_es = []
-
+        if diff_flag:
+            # if crated_at field was changed, we need to delete all data and
+            # ingest all blocks again
+            collection.data.delete(json.dumps({"feed_id_eiq": str(feed_id)}))
+            
         for row in csvreader:
             # Loop through the rows and see what must be done
             if sys.version_info >= (3, 0):
