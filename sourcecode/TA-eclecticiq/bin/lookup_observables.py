@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 
 """
 Copyright 2023 EclecticIQ B.V.
@@ -26,8 +26,6 @@ from splunk.persistconn.application import PersistentServerConnectionApplication
 (path, _) = os.path.split(os.path.realpath(__file__))
 sys.path.insert(0, path)
 
-import splunklib.binding as bind
-import splunklib.client as client
 import classes.splunk_info as si
 import classes.eiq_logger as eiq_logger
 
@@ -97,20 +95,6 @@ class Send(PersistentServerConnectionApplication):
 
         # make sure that VERIFYSSL is a boolean True or False
         VERIFYSSL = True if str(VERIFYSSL) == "1" else False
-
-        binding = bind.connect(token=in_string_json["session"]["authtoken"], owner="nobody")
-        xml_reply_root = ET.fromstring(str(binding.get('/services/server/info')["body"]))
-        instance_type_key = xml_reply_root.findall(".//*[@name='instance_type']")
-        
-        try:
-            instance_type = instance_type_key[0].text
-        except IndexError:
-            instance_type = "on-prem"
-
-        if instance_type == "cloud":
-            VERIFYSSL = True
-
-        binding.logout()
 
         eiq_api = eiqlib(BASEURL, EIQ_VERSION, "", PASSWORD,
                      VERIFYSSL, PROXY_IP, PROXY_USERNAME,
