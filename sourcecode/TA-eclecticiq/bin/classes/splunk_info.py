@@ -33,7 +33,7 @@ class Splunk_Info(object):
 
 
         custom_conf_file = (
-            str(app.lower()) + ".conf" if app is not "-"
+            str(app.lower()) + ".conf" if app != "-"
             else str(self.splunk_paths['app_name'].lower()) + ".conf")
 
         # Set the log level based on the value in the config file
