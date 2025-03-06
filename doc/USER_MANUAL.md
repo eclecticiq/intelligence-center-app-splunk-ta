@@ -117,6 +117,8 @@ These outgoing feeds must have these properties:
 - **Transport type:** _HTTP download_
 - **Content type:** _EclecticIQ Observables CSV_
 - **Update strategy:** _Diff_ or _Replace_.
+
+  > **⚠️CAUTION:** Do not use the _Append_ update strategy.
   - **(Recommended)** _Diff_ allows you to update data ingested
     into Splunk incrementally,
     syncing both removed and added observables
