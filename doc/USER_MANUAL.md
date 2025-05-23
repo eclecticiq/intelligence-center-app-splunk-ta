@@ -1,4 +1,4 @@
-# EclecticIQ IC (EIQ IC) App for Splunk documentation
+# EclecticIQ Intelligence Center (EIQ IC) App for Splunk documentation
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
