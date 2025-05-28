@@ -1,4 +1,4 @@
-# EclecticIQ Intelligence Center App for Splunk documentation
+# EclecticIQ Intelligence Center (EIQ IC) App for Splunk documentation
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -10,10 +10,9 @@
     - [Install from Splunkbase](#install-from-splunkbase)
     - [Install from file](#install-from-file)
 - [Configure](#configure)
-    - [Set up outgoing feeds on EclecticIQ Intelligence Center](#set-up-outgoing-feeds-on-eclecticiq-intelligence-center)
-    - [Configure app](#configure-app)
-- [Objects added](#objects-added)
-- [Enable input scripts](#enable-input-scripts)
+    - [Set up outgoing feeds on EIQ IC](#set-up-outgoing-feeds-on-eiq-ic)
+    - [Configure app](#connect-app-to-eiq-ic)
+    - [Input scripts](#input-scripts)
 - [Ingest observables into Splunk](#ingest-observables-into-splunk)
 - [Ingest observables into Splunk Enterprise Security Threat Intelligence Framework](#ingest-observables-into-splunk-enterprise-security-threat-intelligence-framework)
 - [Workflow action "Create Sighting"](#workflow-action-create-sighting)
@@ -32,7 +31,7 @@
     - [Observables DB Info](#observables-db-info)
 - [Appendix](#appendix)
     - [Find outgoing feed IDs](#find-outgoing-feed-ids)
-    - [EclecticIQ Intelligence Center permissions](#eclecticiq-intelligence-center-permissions)
+    - [EIQ IC permissions](#eiq-ic-permissions)
     - [Alert expiry](#alert-expiry)
     - [Sightings query](#sightings-query)
     - [KV Store collections](#kv-store-collections)
@@ -45,34 +44,34 @@
 
 ## Introduction
 
-The EclecticIQ Intelligence Center App for Splunk
+The EIQ IC App for Splunk
 allows you to connect
-[EclecticIQ Intelligence Center](https://www.eclecticiq.com/products/intelligence-center)
+[EIQ IC](https://www.eclecticiq.com/products/intelligence-center)
 with Splunk.
 
 ## Prerequisites
 
-* Splunk Enterprise 8.x, 9.x, or Splunk Cloud.
-* EclecticIQ Intelligence Center 2.14, or 3.0 and newer.
-* EclecticIQ Intelligence Center user account API token.
+* Splunk Enterprise 8.x, 9.x, or Splunk Victoria.
+* EIQ IC 3.0 or newer.
+* EIQ IC user account API token.
 * [Splunk Common Information Model](https://splunkbase.splunk.com/app/1621) (Required for [tstats searches](#tstats-searches)).
-* Network access between EclecticIQ Intelligence Center
+* Network access between EIQ IC
   and your Splunk instance.
-* EclecticIQ Intelligence Center outgoing feed(s)
+* EIQ IC outgoing feed(s)
   that provide observables for ingestion/lookup.
 
 ## Features
 
 * [Dashboards](#dashboards)
 * Workflow actions:
-  - Create Sighting in EclecticIQ Intelligence Center from event fields.
-  - Lookup observables and related entities in EclecticIQ Intelligence Center from event fields.
-* Alerts
-* Data input scripts for:
-  - Ingesting observables from EclecticIQ Intelligence Center into Splunk.
-  - Sending events from Splunk to EclecticIQ Intelligence Center as Sighting entities.
-* Provides alert actions that you can use when creating alerts:
-  - Create Sighting
+  - [Create Sighting in EIQ IC from event fields](#workflow-action-create-sighting).
+  - [Lookup observables and related entities in EIQ IC from event fields](#workflow-action-lookup-observable).
+* Data input scripts (Classic) or automation (Victoria) for:
+  - [Ingesting observables from EIQ IC into Splunk](#ingest-observables-into-splunk).
+  - Sending events from Splunk to EIQ IC as Sighting entities.
+* Additional capabilities:
+  - [Create Alerts and alerts action, such as having an Alert create a Sighting](#create-sighting-alert-action).
+  - [Saved searches](#saved-searches).
 
 ## Install
 
@@ -80,7 +79,7 @@ with Splunk.
 
 1. Log in to Splunk Enterprise.
 1. From the navigation menu, select **Apps > Find more Apps**.
-1. Search for "EclecticIQ Intelligence Center App for Splunk".
+1. Search for "EIQ IC App for Splunk".
 1. Select Install.
 
 ### Install from file
@@ -95,22 +94,19 @@ with Splunk.
 1. Select **Upload** to install the app.
 
 ## Configure
-
 Before using the app, you must:
 
-- Set up outgoing feeds on EclecticIQ Intelligence Center.
+- [Set up outgoing feeds on EIQ IC](#set-up-outgoing-feeds-on-eiq-ic).  
   These feeds provide data for lookup and alerting on Splunk.
-- Connect the app to an EclectiCIQ Intelligence Center instance
-  with one or more outgoing feeds.
-- Manually enable app features.
-  App objects are not enabled by default
-  to give you explicit control over features to run.
+- [Connect the app to an EIQ IC instance with one or more outgoing feeds](#connect-app-to-eiq-ic).
+- *On Splunk Classic* [Enable the input script](#input-scripts).  
+  They are auto-enabled and non-configurable in Splunk Victoria.
 
-### Set up outgoing feeds on EclecticIQ Intelligence Center
+### Set up outgoing feeds on EIQ IC
 
-To allow the app to work with EclecticIQ Intelligence Center,
+To allow the app to work with EIQ IC,
 you must connect it to at least 1 outgoing feed
-on an EclecticIQ Intelligence Center instance.
+on an EIQ IC instance.
 
 These outgoing feeds must have these properties:
 
@@ -127,7 +123,7 @@ These outgoing feeds must have these properties:
     Do not use with large feeds.
 - **Authorized groups:**
   Must set one or more groups. Feed must be authenticated.
-  See [EclecticIQ Intelligence Center permissions](#eclecticiq-intelligence-center-permissions).
+  See [EIQ IC permissions](#eiq-ic-permissions).
 
 
 Only observables packed by this outgoing feed are ingested into Splunk.
@@ -135,7 +131,7 @@ Only observables packed by this outgoing feed are ingested into Splunk.
 To create an outgoing feed, see EclecticIQ documentation:
 [Create and configure outgoing feeds](https://docs.eclecticiq.com/ic/current/integrations/extensions/outgoing-feeds/configure-outgoing-feeds-general-options/).
 
-### Configure app
+### Connect app to EIQ IC
 
 > ⚠️ **NOTE:**
 > For on-premises Splunk instances,
@@ -148,7 +144,7 @@ To configure the app for the first time:
 1.  From the navigation menu in Splunk, go to
     **Apps > Manage apps**
 1.  Locate the record for
-    "EclecticIQ Intelligence Center app for Splunk" in the list of apps.
+    "EIQ IC app for Splunk" in the list of apps.
 1.  On the right of that record, select **Set up**.
 
 To change the configuration of the app, you can:
@@ -162,13 +158,13 @@ In the configuration page, set the following fields:
 
 | Field | Description
 | - | -
-| EclecticIQ Intelligence Center URL\* | Enter the URL for your EclecticIQ Intelligence Center instance.
-| EclecticIQ Intelligence Center API version\* | `v1` for EclecticIQ Intelligence Center 2.14; `v2` for EclecticIQ Intelligence Center 3.0 and newer.
+| EIQ IC URL\* | Enter the URL for your EIQ IC instance.
+| EIQ IC API version\* | `v1` for EIQ IC 2.14; `v2` for EIQ IC 3.0 and newer.
 | Verify the SSL connection | Selected by default. Remove selection to allow unverified HTTPS connections.
-| ID of feeds for collection from EclecticIQ Intelligence Center\* | Set at least 1 outgoing feed ID. Multiple IDs should be separated by commas (e.g.: `6, 13`). To find outgoing feed IDs, see [Find outgoing feed IDs](#find-outgoing-feed-ids).
+| ID of feeds for collection from EIQ IC\* | Set at least 1 outgoing feed ID. Multiple IDs should be separated by commas (e.g.: `6, 13`). To find outgoing feed IDs, see [Find outgoing feed IDs](#find-outgoing-feed-ids).
 | Ingest data into Splunk Enterprise Security Threat Intel Framework | Select to enable ingesting data into Splunk Enterprise Security Threat Intel Framework. Requires Splunk Enterprise Security.
-| EclecticIQ Intelligence Center Source Group | Enter the name of one EclecticIQ Intelligence Center group. When this app sends events to EclecticIQ Intelligence Center as sightings, this is the group assigned as their source. See [EclecticIQ Intelligence Center permissions](#eclecticiq-intelligence-center-permissions). |
-| EclecticIQ Intelligence Center API Token\* | API token from EclecticIQ Intelligence Center user account. See [EclecticIQ Intelligence Center permissions](#eclecticiq-intelligence-center-permissions). |
+| EIQ IC Source Group | Enter the name of one EIQ IC group. When this app sends events to EIQ IC as sightings, this is the group assigned as their source. See [EIQ IC permissions](#eiq-ic-permissions). |
+| EIQ IC API Token\* | API token from EIQ IC user account. See [EIQ IC permissions](#eiq-ic-permissions). |
 
 
 Optional settings:
@@ -179,7 +175,7 @@ Optional settings:
 | Proxy username | Username for authenticating with proxy server.
 | Proxy password | Password for authenticating with proxy server.
 | Sightings query | See [Sightings query](#sightings-query).
-| Send the following sightings types | When the `eiq_send_sightings.py` data input script is enabled and an alert from `eiq_alerts` is triggered, only events containing IoCs of these types are sent to EclecticIQ Intelligence Center as sighting entities.
+| Send the following sightings types | When the `eiq_send_sightings.py` data input script is enabled and an alert from `eiq_alerts` is triggered, only events containing IoCs of these types are sent to EIQ IC as sighting entities.
 | Scripts Log Level | Log verbosity for logs collected for this app. See [Access the logs](#access-the-logs). |
 
 <!--
@@ -223,26 +219,27 @@ Optional settings:
 | setup_view_dashboard | views | 
 -->
 
-## Enable input scripts
+### Input scripts
+The **Ingest observables into Splunk** and **Ingest observables into Splunk Enterprise Security ThreatIntelligence Framework**
+features of this app rely on the input scripts provided with it.
 
-This app provides the following scripts for data input.
-To find these scripts, go to
-**Settings > Data input > Script** in Splunk.
+In Splunk Classic, you must enable these scripts in order to use the functionalities that rely on them.
+In Splunk Victoria, you can't configure these scripts yourself so they have been configured and enabled to
+run every 20 minutes.
 
-You must manually enable these scripts for them to run.
-
-You must manually enable these scripts before
-Splunk runs them.
-
+#### List of input scripts
 | Script name | Default interval |
 | - | - |
-| `eiq_collect_feeds.py` | `*/20 * * * *` | Collects data from EclecticIQ Intelligence Center. See [Ingest observables into Splunk](#ingest-observables-into-splunk)
-| `eiq_send_sightings.py` | `*/15 * * * *` | Automatically sends alerts created by the EclecticIQ Intelligence Center App for Splunk to EclecticIQ Intelligence Center as Sighting entities.
+| `eiq_collect_feeds.py` | `*/20 * * * *` | Collects data from EIQ IC. See [Ingest observables into Splunk](#ingest-observables-into-splunk)
+| `eiq_send_sightings.py` | `*/15 * * * *` | Automatically sends alerts created by the EIQ IC App for Splunk to EIQ IC as Sighting entities.
 | `eiq_setup_handler.py` | None | Not used. Only for initializing the app.
 
+#### Working with input scripts in Splunk Classis
+To find these scripts in the Splunk Classic version, go to
+**Settings > Data input > Script**.
 
 > 📘 **NOTE:**
-> To change the **Interval** of a script,
+> To change the **Interval** of a script in Splunk classic,
 > you may need to explicitly set a
 > [Source type](https://docs.splunk.com/Documentation/Splunk/latest/Data/Whysourcetypesmatter)
 > for it. Create a new source type, or set a manual one:
@@ -252,13 +249,12 @@ Splunk runs them.
 > 1. In the **Source type** field, enter a custom value
 >    (e.g., `EclecticIQ:scripts`)
 
-
 ## Ingest observables into Splunk
 
 To periodically ingest observables from
-EclecticIQ Intelligence Center into Splunk,
+EIQ IC into Splunk Classic,
 you must enable the `eiq_collect_feeds.py` data input script.
-See [Enable input scripts](#enable-input-scripts)
+See the [List of input scripts](#list-of-input-scripts)
 
 Once observables have been ingested into Splunk,
 that data is available through the `eiq_ioc_list` KV Store collection.
@@ -275,10 +271,10 @@ For more information, see [KV Store collections](#kv-store-collections).
 Splunk Enterprise Security (Splunk ES) users who wants to ingest
 IoCs into the Threat Intelligence Framework (TIF)
 must select **Ingest data into Splunk Enterprise Security Threat
-Intel Framework** when [configuring the app](#configure-app).
+Intel Framework** when [configuring the app](#connect-app-to-eiq-ic).
 
 Once configured, the app ingests observables from
-the configured EclecticIQ Intelligence Center outgoing feeds
+the configured EIQ IC outgoing feeds
 into the following KV Store collections
 [supported by Splunk ES](https://docs.splunk.com/Documentation/ES/7.1.1/Admin/Supportedthreatinteltypes):
 
@@ -353,7 +349,7 @@ Search or, if you are using Splunk Enterprise Security, to
 as well.
 
 Action provided by this app only creates
-Sighting in connected EclecticIQ Intelligence Center and do
+Sighting in connected EIQ IC and do
 not add any data to Splunk KV Stores.
 
 How to use Alert Action with Splunk Search:
@@ -531,9 +527,9 @@ observables stored in the KV Store.
 
 ### Find outgoing feed IDs
 
-To find the ID of an EclecticIQ Intelligence Center outgoing feed:
+To find the ID of an EIQ IC outgoing feed:
 
-1.  Log in to EclecticIQ Intelligence Center.
+1.  Log in to EIQ IC.
 1.  Navigate to **Data configuration > Outgoing feeds**.
 1.  Select an outgoing feed to open it.
 1.  Inspect the address bar of your browser.
@@ -542,33 +538,33 @@ To find the ID of an EclecticIQ Intelligence Center outgoing feed:
 
     **For example:** For an outgoing feed that displays `https://ic-playground.eclecticiq.com/main/configuration/outgoing-feeds?detail=6` in the address bar, its ID is `6`.
 
-### EclecticIQ Intelligence Center permissions
+### EIQ IC permissions
 
 To use this app, you must have an API token from an
-EclecticIQ Intelligence Center user account that:
+EIQ IC user account that:
 
 - Has at least these permissions:
   - `read entities`
   - `read extracts`
   - `read outgoing feeds`
 
-To allow this app to send events to EclecticIQ Intelligence Center as sightings,
+To allow this app to send events to EIQ IC as sightings,
 this user must also:
 
 - Have the following permissions:
   - `modify entities`
   - `modify extracts`
 - Belong to the group specified in the
-  **EclecticIQ Intelligence Center Source Group**
+  **EIQ IC Source Group**
   field when
-  [Configuring the app](#configure-app).
+  [Configuring the app](#connect-app-to-eiq-ic).
 
-To create an API token on EclecticIQ Intelligence Center,
+To create an API token on EIQ IC,
 see EclecticIQ documentation:
 [Create an API token](https://docs.eclecticiq.com/ic/current/get-to-know-the-ic/permissions/token-based-authentication/create-an-api-token/).
 
 For information on how permissions are managed,
-see [EclecticIQ Intelligence Center permissions](https://docs.eclecticiq.com/ic/current/get-to-know-the-ic/permissions/ic-permissions/#control-access-through-groups-roles-and-permissions)
+see [EIQ IC permissions](https://docs.eclecticiq.com/ic/current/get-to-know-the-ic/permissions/ic-permissions/#control-access-through-groups-roles-and-permissions)
 
 ### Alert expiry
 
@@ -595,8 +591,8 @@ This app provides these KV Store collections:
 | KV Store collection | Description
 | - | -
 | `eiq_alerts` | Store of all alerts captured by the app.
-| `eiq_feeds_list` | Store of status of all EclecticIQ Intelligence Center outgoing feeds this app is configured to retrieve data from.
-| `eiq_ioc_list` | Lookup table that stores all observables ingested from EclecticIQ Intelligence Center outgoing feeds.
+| `eiq_feeds_list` | Store of status of all EIQ IC outgoing feeds this app is configured to retrieve data from.
+| `eiq_ioc_list` | Lookup table that stores all observables ingested from EIQ IC outgoing feeds.
 
 You can query each of these KV Store collections with the `| inputlookup` command.
 
@@ -611,11 +607,11 @@ To see fields available for querying:
 
 Access the logs for this app:
 
-1.  Open the app. In Splunk, from the navigation menu, go to **Apps > EclecticIQ Intelligence Center App for Splunk**.
+1.  Open the app. In Splunk, from the navigation menu, go to **Apps > EIQ IC App for Splunk**.
 1.  In the app view, go to **Information > Application Logs**.
 
 You can configure log verbosity in the
-[app configuration](#configure-app),
+[app configuration](#connect-app-to-eiq-ic),
 using these values:
 
 | Log level | Description |
