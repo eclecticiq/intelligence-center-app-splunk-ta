@@ -43,7 +43,8 @@ EXPORT_FIELDS_LIST = [
     'entity.id', 'entity.type', 'entity.title', 'meta.tlp', 'meta.ingest_time',
     'meta.estimated_observed_time', 'meta.estimated_threat_start_time',
     'meta.estimated_threat_end_time', 'meta.relevancy', 'meta.tags', 'meta.taxonomy',
-    'meta.source_reliability', 'meta.entity_url', 'meta.classification', 'meta.confidence'
+    'meta.source_reliability', 'meta.entity_url', 'meta.classification', 'meta.confidence',
+    'custom_entity_type', 'custom_attributes',
 ]
 
 
@@ -306,7 +307,7 @@ def export_csv_to_kv(feed_id, text, update_strategy, count=0, diff_flag=False, e
 
             for field_name in EXPORT_FIELDS_LIST:
                 # Loop through the fields that need to be in the collection
-                format_to_kv(data_to_add, field_name, row[field_name])
+                format_to_kv(data_to_add, field_name, row.get(field_name, None))
 
             list_to_add.append(data_to_add)
 
@@ -358,7 +359,7 @@ def export_csv_to_kv(feed_id, text, update_strategy, count=0, diff_flag=False, e
 
                 # Loop through the fields that need to be in the collection
                 for field_name in EXPORT_FIELDS_LIST:
-                    format_to_kv(data_to_add, field_name, row[field_name])
+                    format_to_kv(data_to_add, field_name, row.get(field_name, None))
 
                 list_to_add.append(data_to_add)
 

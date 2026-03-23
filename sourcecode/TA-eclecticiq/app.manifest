@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "TA-eclecticiq",
-      "version": "1.3.2"
+      "version": "1.3.6"
     },
     "author": [
       {
@@ -39,7 +39,12 @@
     }
   },
   "dependencies": null,
-  "tasks": null,
+  "tasks": [
+    "script://$SPLUNK_HOME/etc/apps/TA-eclecticiq/bin/eiq_send_sightings.py",
+    "script://$SPLUNK_HOME/etc/apps/TA-eclecticiq/bin/eiq_collect_feeds.py",
+    "script://$SPLUNK_HOME/etc/apps/TA-eclecticiq/bin/eiq_setup_handler.py",
+    "monitor://$SPLUNK_HOME/etc/apps/TA-eclecticiq/logs/TA-eclecticiq.log"
+  ],
   "inputGroups": null,
   "incompatibleApps": null,
   "platformRequirements": null,

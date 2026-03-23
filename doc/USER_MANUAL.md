@@ -35,6 +35,7 @@
     - [Alert expiry](#alert-expiry)
     - [Sightings query](#sightings-query)
     - [KV Store collections](#kv-store-collections)
+    - [Custom entities and attributes](#custom-entities-and-attributes)
 - [Troubleshooting](#troubleshooting)
     - [Access the logs](#access-the-logs)
     - [App configuration cannot complete](#app-configuration-cannot-complete)
@@ -121,6 +122,8 @@ These outgoing feeds must have these properties:
     ingested from the outgoing feeds, and ingests all data
     provided by the feed, each time the feed is updated.
     Do not use with large feeds.
+- **Export custom attributes as separate CSV columns:** Unchecked (available from IC 3.6.x+).
+  
 - **Authorized groups:**
   Must set one or more groups. Feed must be authenticated.
   See [EIQ IC permissions](#eiq-ic-permissions).
@@ -600,6 +603,17 @@ To see fields available for querying:
 1. Go to **Apps > Search and Reporting > Datasets**.
 2. Filter entries to display only entries starting with `eiq`.
 3. Select a dataset to open it.
+
+### Custom entities and attributes
+
+Now `eiq_ioc_list` table also include two new rows `custom_entity_type_eiq` and `custom_attributes_eiq`
+
+custom_attributes_eiq contains all custom attributes along with their corresponding values and can be used to filter data based on those attributes. A sample example is:
+
+```
+| inputlookup eiq_ioc_list | spath input=custom_attributes_eiq path=<custom-attr> | where <custom-attr>="<custom-attr-value>"
+```
+
 
 ## Troubleshooting
 
